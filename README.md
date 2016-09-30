@@ -1,6 +1,7 @@
 # Community Legal Services [Fall-2016]
-=================
 
-## Team Member*
-* Santiago Buenahora
+
+## Team Members
 * Krishna Bharathala
+* Santiago Buenahora
+
