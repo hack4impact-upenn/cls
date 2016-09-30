@@ -1,3 +1,5 @@
-# cls
-Community Legal Services Project [Fall-2016]
-Santiago Buenahora
+# Community Legal Services [Fall-2016]
+=================
+
+## Team Member*
+* Santiago Buenahora
