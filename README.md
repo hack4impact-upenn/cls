@@ -1,4 +1,8 @@
-# cls
-## Community Legal Services Project [Fall-2016]
-### Krishna Bharathala
-### Santiago Buenahora
+# Community Legal Services [Fall-2016]
+
+This is a Hack4Impact Project
+
+## Team Members
+* Krishna Bharathala (Project Manager)
+* Santiago Buenahora
+* Abhinav Suri (Technical Lead)
