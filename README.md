@@ -3,9 +3,9 @@
 This is a Hack4Impact Project for Community Legal Services.
 
 ## Team Members
-* Krishna Bharathala (Project Manager)
-* Santiago Buenahora
-* Katie Jiang
 * Abhinav Suri (Technical Lead)
 * Daniel Zhang
+* Katie Jiang
+* Krishna Bharathala (Project Manager)
 * Rachel Hong
+* Santiago Buenahora
