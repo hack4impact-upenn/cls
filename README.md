@@ -6,3 +6,5 @@ This is a Hack4Impact Project
 * Krishna Bharathala (Project Manager)
 * Santiago Buenahora
 * Abhinav Suri (Technical Lead)
+* Daniel Zhang
+
