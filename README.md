@@ -7,4 +7,4 @@ This is a Hack4Impact Project
 * Santiago Buenahora
 * Abhinav Suri (Technical Lead)
 * Daniel Zhang
-
+* Katie Jiang
