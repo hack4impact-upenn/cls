@@ -8,3 +8,4 @@ This is a Hack4Impact Project for Community Legal Services.
 * Katie Jiang
 * Abhinav Suri (Technical Lead)
 * Daniel Zhang
+* Rachel Hong
