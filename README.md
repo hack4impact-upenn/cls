@@ -8,3 +8,4 @@ This is a Hack4Impact Project
 * Katie Jiang
 * Abhinav Suri (Technical Lead)
 * Daniel Zhang
+* Rachel Hong
