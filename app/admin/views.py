@@ -172,4 +172,3 @@ def csv_upload():
         print "got data"
         #enqueue redis job that will send the email
     return render_template('account/upload.html', form=form)
-
