@@ -1,7 +1,6 @@
 import os
 import urlparse
 from raygun4py.middleware import flask as flask_raygun
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -20,6 +19,7 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'password'
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or \
         'flask-base-admin@example.com'
     EMAIL_SUBJECT_PREFIX = '[{}]'.format(APP_NAME)
