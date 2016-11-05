@@ -162,3 +162,13 @@ def delete_user(user_id):
         db.session.commit()
         flash('Successfully deleted user %s.' % user.full_name(), 'success')
     return redirect(url_for('admin.registered_users'))
+
+@admin.route('/csv-upload')
+@login_required
+@admin_required
+def csv_upload():
+    form = NewCSVForm()
+    if form.validate_on_submit():
+        print "got data"
+        #enqueue redis job that will send the email
+
