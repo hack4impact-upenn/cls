@@ -3,7 +3,7 @@ from flask.ext.login import current_user, login_required
 from flask.ext.rq import get_queue
 
 from forms import (ChangeAccountTypeForm, ChangeUserEmailForm, InviteUserForm,
-                   NewUserForm)
+                   NewUserForm, NewCSVForm)
 
 from . import admin
 from .. import db
@@ -171,4 +171,5 @@ def csv_upload():
     if form.validate_on_submit():
         print "got data"
         #enqueue redis job that will send the email
+    return render_template('account/upload.html', form=form)
 
