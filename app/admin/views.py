@@ -10,6 +10,7 @@ from .. import db
 from ..decorators import admin_required
 from ..email import send_email
 from ..models import Role, User
+from ..upload import upload_data, send_upload_email
 
 
 @admin.route('/')
@@ -168,12 +169,15 @@ def delete_user(user_id):
         flash('Successfully deleted user %s.' % user.full_name(), 'success')
     return redirect(url_for('admin.registered_users'))
 
-@admin.route('/csv-upload')
+@admin.route('/csv-upload', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def csv_upload():
     form = NewCSVForm()
     if form.validate_on_submit():
         print "got data"
-        #enqueue redis job that will send the email
+        queue = get_queue()
+        upload_job = queue.enqueue(upload_data, data=form.file_upload.data)
+        queue.enqueue(send_upload_email, user_id=current_user.id, 
+                      data=form.file_upload.data, depends_on=upload_job)
     return render_template('account/upload.html', form=form)

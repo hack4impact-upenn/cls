@@ -22,3 +22,6 @@ def send_upload_email(user_id, data):
             results_link=confirm_link)
         flash('A notification has been sent to {}.'.format(user.email),
               'warning')
+
+def upload_data(data):
+	print "upload data"
