@@ -4,6 +4,13 @@ from raygun4py.middleware import flask as flask_raygun
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
+if os.path.exists('.env'):
+    print('Importing environment from .env file')
+    for line in open('.env'):
+        var = line.strip().split('=')
+        if len(var) == 2:
+            os.environ[var[0]] = var[1]
+
 class Config:
     APP_NAME = 'Flask-Base'
     if os.environ.get('SECRET_KEY'):
@@ -20,8 +27,7 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'password'
-    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or \
-        'flask-base-admin@example.com'
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'flask-base-admin@gmail.com'
     EMAIL_SUBJECT_PREFIX = '[{}]'.format(APP_NAME)
     EMAIL_SENDER = '{app_name} Admin <{email}>'.format(
         app_name=APP_NAME, email=MAIL_USERNAME)
