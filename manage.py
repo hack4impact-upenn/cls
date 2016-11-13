@@ -84,7 +84,6 @@ def setup_general():
     admin_query = Role.query.filter_by(name='Administrator')
     if admin_query.first() is not None:
         if User.query.filter_by(email=Config.ADMIN_EMAIL).first() is None:
-            print Config.ADMIN_EMAIL, Config.ADMIN_PASSWORD
             user = User(
                 first_name='Admin',
                 last_name='Account',

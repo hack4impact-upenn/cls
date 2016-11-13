@@ -58,6 +58,6 @@ class NewUserForm(InviteUserForm):
 
     submit = SubmitField('Create')
 
-class NewCSVForm(Form):
+class NewDataForm(Form):
     file_upload = FileField(validators=[DataRequired()])
     submit = SubmitField('Submit Upload')

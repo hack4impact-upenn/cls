@@ -3,7 +3,7 @@ from flask.ext.login import current_user, login_required
 from flask.ext.rq import get_queue
 
 from forms import (ChangeAccountTypeForm, ChangeUserEmailForm, InviteUserForm,
-                   NewUserForm, NewCSVForm)
+                   NewDataForm, NewUserForm)
 
 from . import admin
 from .. import db
@@ -169,15 +169,16 @@ def delete_user(user_id):
         flash('Successfully deleted user %s.' % user.full_name(), 'success')
     return redirect(url_for('admin.registered_users'))
 
-@admin.route('/csv-upload', methods=['GET', 'POST'])
+@admin.route('/upload', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def csv_upload():
-    form = NewCSVForm()
+def json_upload():
+    form = NewDataForm()
     if form.validate_on_submit():
-        print "got data"
         queue = get_queue()
-        upload_job = queue.enqueue(upload_data, data=form.file_upload.data)
+        upload_job = queue.enqueue(upload_data)
         queue.enqueue(send_upload_email, user_id=current_user.id, 
-                      data=form.file_upload.data, depends_on=upload_job)
+                      depends_on=upload_job)
+        flash('Your data is being uploaded! A confirmation email will be sent '
+              'to {} when it is ready.'.format(current_user.email), 'success')
     return render_template('account/upload.html', form=form)
