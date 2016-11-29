@@ -1,0 +1,98 @@
+{% block content %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>Map Upload</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>  
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+          <style>
+          * { font-family: 'HKGroteskRegular' } 
+          body { margin: 0px; height: 100vh; z-index: -1}
+          #upload { background-color: #FFF; height: 50vh; z-index: 1000; padding-top: 50px; height: 100vh; box-shadow: 5px 5px 10px #000}
+          h1{ font-family: 'HKGroteskBold' }
+          p { font-size: 18px }
+        </style>
+
+</head>
+<body id="mapid">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4" id="upload">
+        <div class="row">
+          <div class="col-md-12">
+            <h1> Step 1: Upload</h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <p> Please select a valid Google Location Map History file (should be in format of LocationHistory.json) </p>
+          </div>
+          <div class="col-md-12">
+            <div class="input-group">
+                <label class="input-group-btn">
+                    <span class="btn btn-primary">
+                      Upload&hellip; <input type="file" style="display: none;" multiple>
+                    </span>
+                </label>
+                <input type="text" class="form-control" readonly>
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+        
+        // initial state
+        var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false } ).setView([39.9526, -75.163], 13);
+
+	L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+			'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+	}).addTo(mymap);
+        L.control.zoom({ position: 'bottomright' }).addTo(mymap);
+        // file input
+
+  $(document).on('change', ':file', function() {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [numFiles, label]);
+  });
+
+  $(document).ready( function() {
+      $(':file').on('fileselect', function(event, numFiles, label) {
+
+          var input = $(this).parents('.input-group').find(':text'),
+              log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+          if( input.length ) {
+              input.val(log);
+          } else {
+              if( log ) alert(log);
+          }
+
+      });
+  });
+        
+
+</script>
+
+
+
+</body>
+</html>
+{% endblock %}

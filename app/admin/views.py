@@ -19,6 +19,12 @@ def index():
     """Admin dashboard page."""
     return render_template('admin/index.html')
 
+@admin.route('/map')
+@login_required
+@admin_required
+def map():
+    """Map upload page"""
+    return render_template('admin/map.html')
 
 @admin.route('/new-user', methods=['GET', 'POST'])
 @login_required
@@ -111,7 +117,6 @@ def change_user_email(user_id):
         flash('Email for user {} successfully changed to {}.'
               .format(user.full_name(), user.email), 'form-success')
     return render_template('admin/manage_user.html', user=user, form=form)
-
 
 @admin.route(
     '/user/<int:user_id>/change-account-type', methods=['GET', 'POST'])
