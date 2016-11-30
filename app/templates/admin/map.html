@@ -48,6 +48,11 @@
             </div>
           </div>
         </div>
+        <div class="row">
+          <div class="col-md-4">
+            <button class="btn btn-primary" id="newBoxButton">New Box</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -66,30 +71,46 @@
   L.control.zoom({ position: 'bottomright' }).addTo(mymap);
   // file input
 
-  mymap.dragging.disable();
-
+  var newBoxMode = false;
   var bounds = new Array();
   var boxes = new Array();
   var currentBox;
 
+  function newBoxState() {
+    mymap.dragging.disable();
+    console.log("newBoxState");
+  }
+
   mymap.on('mousedown', function(edown) {
-    bounds[0] = edown.latlng;
-    bounds[1] = edown.latlng;
-    currentBox = L.rectangle(bounds, {color: "blue", weight: 1});
-    mymap.on('mousemove', function(emove) {
-      console.log(emove.latlng);
-      bounds[1] = emove.latlng;
-      currentBox.setBounds(bounds);
-      currentBox.addTo(mymap);
-    });
+    if (newBoxMode) {
+      bounds[0] = edown.latlng;
+      bounds[1] = edown.latlng;
+      currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
+      mymap.on('mousemove', function(emove) {
+        console.log(emove.latlng);
+        bounds[1] = emove.latlng;
+        currentBox.setBounds(bounds);
+        currentBox.addTo(mymap);
+      });
+    }
   });
 
   mymap.on('mouseup', function(e) {
-    bounds[1] = e.latlng;
-    currentBox = L.rectangle(bounds, {color: "blue", weight: 1});
-    currentBox.addTo(mymap);
-    boxes.push(currentBox);
-    currentBox = null;
+    if (newBoxMode) {
+      bounds[1] = e.latlng;
+      currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
+      currentBox.addTo(mymap);
+      boxes.push(currentBox);
+      currentBox = null;
+      mymap.dragging.enable();
+      newBoxMode = false;
+    }
+
+  });
+
+  $('#newBoxButton').on('click', function(e) {
+    newBoxMode = true;
+    mymap.dragging.disable();
   });
 
   $(document).on('change', ':file', function() {
