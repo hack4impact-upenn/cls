@@ -52,6 +52,9 @@
           <div class="col-md-4">
             <button class="btn btn-primary" id="newBoxButton">New Box</button>
           </div>
+          <div class="col-md-4">
+            <button class="btn btn-primary" id="checkBounds">Check Bounds</button>
+          </div>
         </div>
       </div>
     </div>
@@ -60,7 +63,7 @@
   <script>
 
   // initial state
-  var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false } ).setView([39.9526, -75.163], 13);
+  var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false, drawControl: true } ).setView([39.9526, -75.163], 13);
 
   L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
     maxZoom: 18,
@@ -76,6 +79,7 @@
   var boxes = {};
   var currentBox;
   var clicking = false;
+  var dragStart, dragEnd;
 
   function mousedownMap(e) {
     if (newBoxMode) {
@@ -84,7 +88,7 @@
       bounds[1] = e.latlng;
       currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
     }
-  };
+  }
 
   function mousemoveMap(e) {
     if (newBoxMode && clicking) {
@@ -92,20 +96,41 @@
       currentBox.setBounds(bounds);
       currentBox.addTo(mymap);
     }
-  };
+  }
+
+  function startDragBox(e) {
+    console.log('started drag');
+    dragstart = e.latlng;
+    console.log(e.latlng);
+  }
+
+  function endDragBox(e) {
+    console.log('ended drag');
+  }
 
   function setName(name) {
     if (name) {
-      boxes[currentBox] = name;
+      var draggable = new L.Draggable(currentBox.getPane());
+      boxes[currentBox._leaflet_id] = {
+        'name': name,
+        'rectangle': currentBox,
+        'draggable': draggable
+      };
+
+      draggable.enable();
+      draggable.addEventListener('dragstart', startDragBox);
+      draggable.on('dragend', endDragBox);
+
       currentBox.bindPopup('Location: ' + name).openPopup();
     } else {
       currentBox.remove();
     }
     currentBox = null;
-  };
+  }
+
 
   function mouseupMap(e) {
-    if (newBoxMode) {
+    if (newBoxMode && currentBox) {
       bounds[1] = e.latlng;
       currentBox.setBounds(bounds);
       currentBox.addTo(mymap);
@@ -113,24 +138,16 @@
 
       bootbox.prompt('Name of location', setName);
 
+      if (currentBox) {
+        var draggable = new L.Draggable(boxPane);
+        draggable.enable();
+      }
+
       mymap.dragging.enable();
       newBoxMode = false;
       clicking = false;
     }
-  };
-
-
-  // mymap.on('mouseup', function(e) {
-  //   if (newBoxMode) {
-  //     bounds[1] = e.latlng;
-  //     currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
-  //     currentBox.addTo(mymap);
-  //     boxes.push(currentBox);
-  //     currentBox = null;
-  //     mymap.dragging.enable();
-  //     newBoxMode = false;
-  //   }
-  // });
+  }
 
   mymap.on('mousedown', mousedownMap);
   mymap.on('mousemove', mousemoveMap);
@@ -139,6 +156,12 @@
   $('#newBoxButton').on('click', function(e) {
     newBoxMode = true;
     mymap.dragging.disable();
+  });
+
+  $('#checkBounds').on('click', function(e) {
+    for (var id in boxes) {
+      console.log(boxes[id]['rectangle'].getBounds());
+    }
   });
 
   $(document).on('change', ':file', function() {
