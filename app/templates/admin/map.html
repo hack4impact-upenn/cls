@@ -14,8 +14,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
-  <script src="/leaflet-draw/Control.Draw.js"></script>
-
+  <script src="{{ url_for('static', filename='leaflet-draw/Control.Draw.js') }}"></script>
   <style>
   /** { font-family: 'HKGroteskRegular' }*/
   body { margin: 0px; height: 100vh; z-index: -1}
@@ -73,16 +72,16 @@
     'Imagery © <a href="http://mapbox.com">Mapbox</a>',
   }).addTo(mymap);
   L.control.zoom({ position: 'bottomright' }).addTo(mymap);
-  // file input
-
-  var drawnItems = new L.FeatureGroup();
-     mymap.addLayer(drawnItems);
-     var drawControl = new L.Control.Draw({
-         edit: {
-             featureGroup: drawnItems
-         }
-     });
-  mymap.addControl(drawControl);
+  // // file input
+  //
+  // var drawnItems = new L.FeatureGroup();
+  //    mymap.addLayer(drawnItems);
+  //    var drawControl = new L.Control.Draw({
+  //        edit: {
+  //            featureGroup: drawnItems
+  //        }
+  //    });
+  // mymap.addControl(drawControl);
 
   var newBoxMode = false;
   var bounds = [];
@@ -108,30 +107,15 @@
     }
   }
 
-  function startDragBox(e) {
-    console.log('started drag');
-    dragstart = e.latlng;
-    console.log(e.latlng);
-  }
-
-  function endDragBox(e) {
-    console.log('ended drag');
-  }
-
   function setName(name) {
     if (name) {
-      var draggable = new L.Draggable(currentBox.getPane());
+
       boxes[currentBox._leaflet_id] = {
         'name': name,
         'rectangle': currentBox,
-        'draggable': draggable
       };
 
-      draggable.enable();
-      draggable.addEventListener('dragstart', startDragBox);
-      draggable.on('dragend', endDragBox);
-
-      currentBox.bindPopup('Location: ' + name).openPopup();
+      currentBox.bindPopup(name).openPopup();
     } else {
       currentBox.remove();
     }
@@ -146,11 +130,6 @@
       boxPane = currentBox.getPane();
 
       bootbox.prompt('Name of location', setName);
-
-      if (currentBox) {
-        var draggable = new L.Draggable(boxPane);
-        draggable.enable();
-      }
 
       mymap.dragging.enable();
       newBoxMode = false;
@@ -194,7 +173,6 @@
 
     });
   });
-
 
   </script>
 
