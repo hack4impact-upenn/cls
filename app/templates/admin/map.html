@@ -1,6 +1,4 @@
 {% block content %}
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,14 +10,16 @@
   <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-  <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>
+  <!-- <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/> -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+
   <style>
-  * { font-family: 'HKGroteskRegular' }
+  /** { font-family: 'HKGroteskRegular' }*/
   body { margin: 0px; height: 100vh; z-index: -1}
   #upload { background-color: #FFF; height: 50vh; z-index: 1000; padding-top: 50px; height: 100vh; box-shadow: 5px 5px 10px #000}
-  h1{ font-family: 'HKGroteskBold' }
+  /*h1{ font-family: 'HKGroteskBold' }*/
   p { font-size: 18px }
   </style>
 
@@ -72,41 +72,69 @@
   // file input
 
   var newBoxMode = false;
-  var bounds = new Array();
-  var boxes = new Array();
+  var bounds = [];
+  var boxes = {};
   var currentBox;
+  var clicking = false;
 
-  function newBoxState() {
-    mymap.dragging.disable();
-    console.log("newBoxState");
-  }
-
-  mymap.on('mousedown', function(edown) {
+  function mousedownMap(e) {
     if (newBoxMode) {
-      bounds[0] = edown.latlng;
-      bounds[1] = edown.latlng;
-      currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
-      mymap.on('mousemove', function(emove) {
-        console.log(emove.latlng);
-        bounds[1] = emove.latlng;
-        currentBox.setBounds(bounds);
-        currentBox.addTo(mymap);
-      });
-    }
-  });
-
-  mymap.on('mouseup', function(e) {
-    if (newBoxMode) {
+      clicking = true;
+      bounds[0] = e.latlng;
       bounds[1] = e.latlng;
       currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
+    }
+  };
+
+  function mousemoveMap(e) {
+    if (newBoxMode && clicking) {
+      bounds[1] = e.latlng;
+      currentBox.setBounds(bounds);
       currentBox.addTo(mymap);
-      boxes.push(currentBox);
-      currentBox = null;
+    }
+  };
+
+  function setName(name) {
+    if (name) {
+      boxes[currentBox] = name;
+      currentBox.bindPopup('Location: ' + name).openPopup();
+    } else {
+      currentBox.remove();
+    }
+    currentBox = null;
+  };
+
+  function mouseupMap(e) {
+    if (newBoxMode) {
+      bounds[1] = e.latlng;
+      currentBox.setBounds(bounds);
+      currentBox.addTo(mymap);
+      boxPane = currentBox.getPane();
+
+      bootbox.prompt('Name of location', setName);
+
       mymap.dragging.enable();
       newBoxMode = false;
+      clicking = false;
     }
+  };
 
-  });
+
+  // mymap.on('mouseup', function(e) {
+  //   if (newBoxMode) {
+  //     bounds[1] = e.latlng;
+  //     currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
+  //     currentBox.addTo(mymap);
+  //     boxes.push(currentBox);
+  //     currentBox = null;
+  //     mymap.dragging.enable();
+  //     newBoxMode = false;
+  //   }
+  // });
+
+  mymap.on('mousedown', mousedownMap);
+  mymap.on('mousemove', mousemoveMap);
+  mymap.on('mouseup', mouseupMap);
 
   $('#newBoxButton').on('click', function(e) {
     newBoxMode = true;
