@@ -16,17 +16,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
   <script src="{{ url_for('static', filename='SimpleShape.js') }}"></script>
   <script src="{{ url_for('static', filename='Rectangle.js') }}"></script>
-  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Control.Draw.js') }}"></script> -->
-  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Toolbar.js') }}"></script> -->
-  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Tooltip.js') }}"></script> -->
-  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Leaflet.Draw.Event.js') }}"></script> -->
-  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Leaflet.draw.js') }}"></script> -->
   <style>
   /** { font-family: 'HKGroteskRegular' }*/
   body { margin: 0px; height: 100vh; z-index: -1}
   #upload { background-color: #FFF; height: 50vh; z-index: 1000; padding-top: 50px; height: 100vh; box-shadow: 5px 5px 10px #000}
   /*h1{ font-family: 'HKGroteskBold' }*/
   p { font-size: 18px }
+  .deleteBox { padding: 5px }
   </style>
 
 </head>
@@ -58,9 +54,17 @@
           <div class="col-md-4">
             <button class="btn btn-primary" id="newBoxButton">New Box</button>
           </div>
-          <div class="col-md-4">
-            <button class="btn btn-primary" id="checkBounds">Check Bounds</button>
-          </div>
+        </div>
+        <div class="row">
+          <table class="table table-hover" id="locationTable">
+            <thead>
+              <tr>
+                <th>Locations</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -78,16 +82,6 @@
     'Imagery © <a href="http://mapbox.com">Mapbox</a>',
   }).addTo(mymap);
   L.control.zoom({ position: 'bottomright' }).addTo(mymap);
-
-  // var drawnItems = new L.FeatureGroup();
-  // mymap.addLayer(drawnItems);
-  // var drawControl = new L.Control.Draw({
-  //   position: 'topright',
-  //   edit: {
-  //     featureGroup: drawnItems
-  //   }
-  // }).addTo(mymap);;
-  // mymap.addControl(drawControl);
 
   var newBoxMode = false;
   var bounds = [];
@@ -113,13 +107,25 @@
     }
   }
 
-  function setName(name) {
+  function createBox(name) {
     if (name) {
-
       boxes[currentBox._leaflet_id] = {
         'name': name,
         'rectangle': currentBox,
       };
+
+      $('#locationTable tr:last').after(
+        '<tr id="'+currentBox._leaflet_id+'"><td>'+name+'</td><td><button class="btn btn-sm deleteBox">&#10006;</button></td></tr>'
+      );
+
+      $('.deleteBox').on('click', function(e) {
+        var id = this.parentNode.parentNode.id;
+        boxes[id].rectangle.editing.disable();
+        boxes[id].rectangle.remove();
+        delete boxes[id];
+        this.parentNode.parentNode.remove();
+      });
+
       currentBox.bindPopup(name).openPopup();
       currentBox.editing.enable();
     } else {
@@ -135,7 +141,7 @@
       currentBox.addTo(mymap);
       boxPane = currentBox.getPane();
 
-      bootbox.prompt('Name of location', setName);
+      bootbox.prompt('Name of location', createBox);
 
       mymap.dragging.enable();
       newBoxMode = false;
@@ -147,15 +153,10 @@
   mymap.on('mousemove', mousemoveMap);
   mymap.on('mouseup', mouseupMap);
 
+
   $('#newBoxButton').on('click', function(e) {
     newBoxMode = true;
     mymap.dragging.disable();
-  });
-
-  $('#checkBounds').on('click', function(e) {
-    for (var id in boxes) {
-      console.log(boxes[id]['rectangle'].getBounds());
-    }
   });
 
   $(document).on('change', ':file', function() {
