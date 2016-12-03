@@ -3,6 +3,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Python compiled Files
+*.pyc
+
+# vim swap files
+*.swp
+*.swo
+
+# system files
+*.DS_Store
+
 # C extensions
 *.so
 
