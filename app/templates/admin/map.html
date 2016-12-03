@@ -14,7 +14,13 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
-  <script src="{{ url_for('static', filename='leaflet-draw/Control.Draw.js') }}"></script>
+  <script src="{{ url_for('static', filename='SimpleShape.js') }}"></script>
+  <script src="{{ url_for('static', filename='Rectangle.js') }}"></script>
+  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Control.Draw.js') }}"></script> -->
+  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Toolbar.js') }}"></script> -->
+  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Tooltip.js') }}"></script> -->
+  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Leaflet.Draw.Event.js') }}"></script> -->
+  <!-- <script src="{{ url_for('static', filename='leaflet-draw/Leaflet.draw.js') }}"></script> -->
   <style>
   /** { font-family: 'HKGroteskRegular' }*/
   body { margin: 0px; height: 100vh; z-index: -1}
@@ -63,7 +69,7 @@
   <script>
 
   // initial state
-  var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false, drawControl: true } ).setView([39.9526, -75.163], 13);
+  var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false} ).setView([39.9526, -75.163], 13);
 
   L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
     maxZoom: 18,
@@ -72,15 +78,15 @@
     'Imagery © <a href="http://mapbox.com">Mapbox</a>',
   }).addTo(mymap);
   L.control.zoom({ position: 'bottomright' }).addTo(mymap);
-  // // file input
-  //
+
   // var drawnItems = new L.FeatureGroup();
-  //    mymap.addLayer(drawnItems);
-  //    var drawControl = new L.Control.Draw({
-  //        edit: {
-  //            featureGroup: drawnItems
-  //        }
-  //    });
+  // mymap.addLayer(drawnItems);
+  // var drawControl = new L.Control.Draw({
+  //   position: 'topright',
+  //   edit: {
+  //     featureGroup: drawnItems
+  //   }
+  // }).addTo(mymap);;
   // mymap.addControl(drawControl);
 
   var newBoxMode = false;
@@ -114,8 +120,8 @@
         'name': name,
         'rectangle': currentBox,
       };
-
       currentBox.bindPopup(name).openPopup();
+      currentBox.editing.enable();
     } else {
       currentBox.remove();
     }

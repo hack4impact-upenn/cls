@@ -1,9 +1,5 @@
 L.Edit = L.Edit || {};
-/**
- * @class L.Edit.Rectangle
- * @aka Edit.Rectangle
- * @inherits L.Edit.SimpleShape
- */
+
 L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 	_createMoveMarker: function () {
 		var bounds = this._shape.getBounds(),
@@ -57,14 +53,15 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 	},
 
 	_move: function (newCenter) {
-		var latlngs = this._shape._defaultShape ? this._shape._defaultShape() : this._shape.getLatLngs(),
+		var latlngs = this._shape.getLatLngs(),
 			bounds = this._shape.getBounds(),
 			center = bounds.getCenter(),
-			offset, newLatLngs = [];
+			offset = [],
+      newLatLngs = [];
 
 		// Offset the latlngs to the new center
-		for (var i = 0, l = latlngs.length; i < l; i++) {
-			offset = [latlngs[i].lat - center.lat, latlngs[i].lng - center.lng];
+		for (var i = 0, l = latlngs[0].length; i < l; i++) {
+			offset = [latlngs[0][i].lat - center.lat, latlngs[0][i].lng - center.lng];
 			newLatLngs.push([newCenter.lat + offset[0], newCenter.lng + offset[1]]);
 		}
 
@@ -72,8 +69,6 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 
 		// Reposition the resize markers
 		this._repositionCornerMarkers();
-
-		this._map.fire(L.Draw.Event.EDITMOVE, {layer: this._shape});
 	},
 
 	_resize: function (latlng) {
@@ -85,8 +80,16 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		// Reposition the move marker
 		bounds = this._shape.getBounds();
 		this._moveMarker.setLatLng(bounds.getCenter());
+	},
 
-		this._map.fire(L.Draw.Event.EDITRESIZE, {layer: this._shape});
+	_setSize: function (bounds) {
+		this._shape.setBounds(bounds);
+
+		// Reposition the move marker
+		bounds = this._shape.getBounds();
+		this._moveMarker.setLatLng(bounds.getCenter());
+		this._repositionCornerMarkers();
+		this._fireEdit();
 	},
 
 	_getCorners: function () {
@@ -111,6 +114,7 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		for (var i = 0, l = this._resizeMarkers.length; i < l; i++) {
 			this._resizeMarkers[i].setLatLng(corners[i]);
 		}
+		this._moveMarker.setLatLng(this._shape.getBounds().getCenter());
 	}
 });
 
