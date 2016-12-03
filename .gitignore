@@ -88,6 +88,12 @@ celerybeat-schedule
 # dotenv
 .env
 
+# SQLite
+.sqlite
+
+# redis dump
+.rdb
+
 # virtualenv
 venv/
 ENV/
