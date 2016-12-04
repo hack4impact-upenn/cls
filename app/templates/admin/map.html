@@ -1,10 +1,7 @@
 {% block content %}
-
-
 <!DOCTYPE html>
 <html>
 <head>
-	
 	<title>Map Upload</title>
 
 	<meta charset="utf-8" />
@@ -18,12 +15,16 @@
         <script src="//cdn.bootcss.com/oboe.js/2.1.2/oboe-browser.min.js"></script>
         <script src="{{ url_for('static', filename='PruneCluster.js') }}"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles/app.css') }}">
+        <script src="{{ url_for('static', filename='SimpleShape.js') }}"></script>
+        <script src="{{ url_for('static', filename='Rectangle.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
           <style>
-          * { font-family: 'HKGroteskRegular' } 
+          * { font-family: 'HKGroteskRegular','Arial' } 
           body { margin: 0px; height: 100vh; z-index: -1}
           #upload { background-color: #FFF; height: 50vh; z-index: 1000; padding-top: 50px; height: 100vh; box-shadow: 5px 5px 10px #000}
           h1{ font-family: 'HKGroteskBold','Arial' }
-          p { font-size: 18px }
+            p { font-size: 18px }
+            .deleteBox { padding: 5px }
         </style>
 
 </head>
@@ -49,34 +50,125 @@
                 </label>
                 <input type="text" class="form-control" readonly>
             </div>
+          </div>
         </div>
         <p id="done">0%</p>
+        <div class="row">
+          <div class="col-md-4">
+            <button class="btn btn-primary" id="newBoxButton">New Box</button>
+          </div>
+        </div>
+        <div class="row">
+          <table class="table table-hover" id="locationTable">
+            <thead>
+              <tr>
+                <th>Locations</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
 
-<script>
-        
-        // initial state
-        var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false } ).setView([39.9526, -75.163], 3);
+  <script>
 
-	L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
-		maxZoom: 18,
-		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-			'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-	}).addTo(mymap);
-        L.control.zoom({ position: 'bottomright' }).addTo(mymap);
+  // initial state
+  var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false} ).setView([39.9526, -75.163], 3);
 
+  L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
+    maxZoom: 18,
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+  }).addTo(mymap);
+  L.control.zoom({ position: 'bottomright' }).addTo(mymap);
+
+  var newBoxMode = false;
+  var bounds = [];
+  var boxes = {};
+  var currentBox;
+  var clicking = false;
+  var dragStart, dragEnd;
+
+  function mousedownMap(e) {
+    if (newBoxMode) {
+      clicking = true;
+      bounds[0] = e.latlng;
+      bounds[1] = e.latlng;
+      currentBox = L.rectangle(bounds, {color: 'blue', weight: 1});
+    }
+  }
+
+  function mousemoveMap(e) {
+    if (newBoxMode && clicking) {
+      bounds[1] = e.latlng;
+      currentBox.setBounds(bounds);
+      currentBox.addTo(mymap);
+    }
+  }
+
+  function createBox(name) {
+    if (name) {
+      boxes[currentBox._leaflet_id] = {
+        'name': name,
+        'rectangle': currentBox,
+      };
+
+      $('#locationTable tr:last').after(
+        '<tr id="'+currentBox._leaflet_id+'"><td>'+name+'</td><td><button class="btn btn-sm deleteBox">&#10006;</button></td></tr>'
+      );
+
+      $('.deleteBox').on('click', function(e) {
+        var id = this.parentNode.parentNode.id;
+        boxes[id].rectangle.editing.disable();
+        boxes[id].rectangle.remove();
+        delete boxes[id];
+        this.parentNode.parentNode.remove();
+      });
+
+      currentBox.bindPopup(name).openPopup();
+      currentBox.editing.enable();
+    } else {
+      currentBox.remove();
+    }
+    currentBox = null;
+  }
+
+  function mouseupMap(e) {
+    if (newBoxMode && currentBox) {
+      bounds[1] = e.latlng;
+      currentBox.setBounds(bounds);
+      currentBox.addTo(mymap);
+      boxPane = currentBox.getPane();
+
+      bootbox.prompt('Name of location', createBox);
+
+      mymap.dragging.enable();
+      newBoxMode = false;
+      clicking = false;
+    }
+  }
+
+  mymap.on('mousedown', mousedownMap);
+  mymap.on('mousemove', mousemoveMap);
+  mymap.on('mouseup', mouseupMap);
+
+
+  $('#newBoxButton').on('click', function(e) {
+    newBoxMode = true;
+    mymap.dragging.disable();
+  });
         var lv = new PruneClusterForLeaflet(160);
         mymap.addLayer(lv);
         // file input
 
   $(document).on('change', ':file', function() {
     var input = $(this),
-        numFiles = input.get(0).files ? input.get(0).files.length : 1,
-        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    numFiles = input.get(0).files ? input.get(0).files.length : 1,
+    label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
     input.trigger('fileselect', [numFiles, label]);
   });
 
@@ -104,13 +196,12 @@
           } else {
               if( log ) alert(log);
           }
-
-      });
+    });
   });
 
   function parseFile(file, callback) {
     var fileSize   = file.size;
-    var chunkSize  = 25 * 1024* 1024; // bytes
+    var chunkSize  =  512* 1024; // bytes
     var offset     = 0;
     var self       = this; // we need a reference to the current object
     var chunkReaderBlock = null;
