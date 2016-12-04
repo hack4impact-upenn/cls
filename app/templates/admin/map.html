@@ -172,13 +172,15 @@
     input.trigger('fileselect', [numFiles, label]);
   });
 
+  var nodeCount = 0;
   var SCALAR_E7 = 0.0000001;
+  var os = oboe()
   $(document).ready( function() {
-      var os = oboe()
       os.node('locations.*', function(location) {
         var marker = new PruneCluster.Marker(location.latitudeE7 * SCALAR_E7, 
                                              location.longitudeE7 * SCALAR_E7);
         lv.RegisterMarker(marker);
+        nodeCount++;
         return oboe.drop;
       }).done('hi we are done');
       $(':file').on('fileselect', function(event, numFiles, label) {
@@ -190,16 +192,14 @@
               var fileInput = $('#uploadInput').get(0);
               var file = fileInput.files[0];
               count = 0;
-              parseFile(file, function(chunk) { 
-                os.emit('data', chunk);
-              })
+              parseFile(file);
           } else {
               if( log ) alert(log);
           }
     });
   });
 
-  function parseFile(file, callback) {
+  function parseFile(file) {
     var fileSize   = file.size;
     var chunkSize  =  512* 1024; // bytes
     var offset     = 0;
@@ -210,8 +210,10 @@
     var readEventHandler = function(evt) {
       if (evt.target.error == null) {
           offset += evt.target.result.length;
-          $("#done").html((100*offset/fileSize).toFixed(2) + "%")
-          callback(evt.target.result); // callback for handling read chunk
+          $("#done").html((100*offset/fileSize).toFixed(2) + "% \n Heapsized Used: " + 
+            (window.performance.memory.usedJSHeapSize/1024/1024).toFixed(2) + " MB of " +
+            (window.performance.memory.jsHeapSizeLimit/1024/1024).toFixed(2) + " MB")
+            os.emit('data', evt.target.result); // callback for handling read chunk
       } else {
           console.log("Read error: " + evt.target.error);
           return;
@@ -220,7 +222,7 @@
           console.log("Done reading file");
           endTime = Date.now(); 
           $("#done").html("100%. Time taken: " + (endTime-startTime)/1000 + 
-            "for file size: " + fileSize/(1024*1024) + " MB")
+            "\nfor file size: " + (fileSize/(1024*1024)).toFixed(2) + " MB \n Processed " + nodeCount + " points.")
           lv.ProcessView();
           return;
       }
