@@ -2,28 +2,30 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<title>Map Upload</title>
 
-  <title>Map Upload</title>
-
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-  <!-- <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/> -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
-  <script src="{{ url_for('static', filename='SimpleShape.js') }}"></script>
-  <script src="{{ url_for('static', filename='Rectangle.js') }}"></script>
-  <style>
-  /** { font-family: 'HKGroteskRegular' }*/
-  body { margin: 0px; height: 100vh; z-index: -1}
-  #upload { background-color: #FFF; height: 50vh; z-index: 1000; padding-top: 50px; height: 100vh; box-shadow: 5px 5px 10px #000}
-  /*h1{ font-family: 'HKGroteskBold' }*/
-  p { font-size: 18px }
-  .deleteBox { padding: 5px }
-  </style>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>  
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+        <!--<link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="//cdn.bootcss.com/oboe.js/2.1.2/oboe-browser.min.js"></script>
+        <script src="{{ url_for('static', filename='PruneCluster.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/app.css') }}">
+        <script src="{{ url_for('static', filename='SimpleShape.js') }}"></script>
+        <script src="{{ url_for('static', filename='Rectangle.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+          <style>
+          * { font-family: 'HKGroteskRegular','Arial' } 
+          body { margin: 0px; height: 100vh; z-index: -1}
+          #upload { background-color: #FFF; height: 50vh; z-index: 1000; padding-top: 50px; height: 100vh; box-shadow: 5px 5px 10px #000}
+          h1{ font-family: 'HKGroteskBold','Arial' }
+            p { font-size: 18px }
+            .deleteBox { padding: 5px }
+        </style>
 
 </head>
 <body id="mapid">
@@ -41,15 +43,16 @@
           </div>
           <div class="col-md-12">
             <div class="input-group">
-              <label class="input-group-btn">
-                <span class="btn btn-primary">
-                  Upload&hellip; <input type="file" style="display: none;" multiple>
-                </span>
-              </label>
-              <input type="text" class="form-control" readonly>
+                <label class="input-group-btn">
+                    <span class="btn btn-primary">
+                      Upload&hellip; <input type="file" id="uploadInput" accept=".json" style="display: none;" multiple>
+                    </span>
+                </label>
+                <input type="text" class="form-control" readonly>
             </div>
           </div>
         </div>
+        <p id="done">0%</p>
         <div class="row">
           <div class="col-md-4">
             <button class="btn btn-primary" id="newBoxButton">New Box</button>
@@ -73,7 +76,7 @@
   <script>
 
   // initial state
-  var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false} ).setView([39.9526, -75.163], 13);
+  var mymap = L.map('mapid', { scrollWheelZoom: false, zoomControl: false} ).setView([39.9526, -75.163], 3);
 
   L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
     maxZoom: 18,
@@ -158,6 +161,9 @@
     newBoxMode = true;
     mymap.dragging.disable();
   });
+        var lv = new PruneClusterForLeaflet(160);
+        mymap.addLayer(lv);
+        // file input
 
   $(document).on('change', ':file', function() {
     var input = $(this),
@@ -166,22 +172,74 @@
     input.trigger('fileselect', [numFiles, label]);
   });
 
+  var SCALAR_E7 = 0.0000001;
   $(document).ready( function() {
-    $(':file').on('fileselect', function(event, numFiles, label) {
+      var os = oboe()
+      os.node('locations.*', function(location) {
+        var marker = new PruneCluster.Marker(location.latitudeE7 * SCALAR_E7, 
+                                             location.longitudeE7 * SCALAR_E7);
+        lv.RegisterMarker(marker);
+        return oboe.drop;
+      }).done('hi we are done');
+      $(':file').on('fileselect', function(event, numFiles, label) {
+          var input = $(this).parents('.input-group').find(':text'),
+              log = numFiles > 1 ? numFiles + ' files selected' : label;
 
-      var input = $(this).parents('.input-group').find(':text'),
-      log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-      if( input.length ) {
-        input.val(log);
-      } else {
-        if( log ) alert(log);
-      }
-
+          if( input.length ) {
+              input.val(log);
+              var fileInput = $('#uploadInput').get(0);
+              var file = fileInput.files[0];
+              count = 0;
+              parseFile(file, function(chunk) { 
+                os.emit('data', chunk);
+              })
+          } else {
+              if( log ) alert(log);
+          }
     });
   });
 
-  </script>
+  function parseFile(file, callback) {
+    var fileSize   = file.size;
+    var chunkSize  =  512* 1024; // bytes
+    var offset     = 0;
+    var self       = this; // we need a reference to the current object
+    var chunkReaderBlock = null;
+    var startTime = Date.now();
+    var endTime = Date.now();
+    var readEventHandler = function(evt) {
+      if (evt.target.error == null) {
+          offset += evt.target.result.length;
+          $("#done").html((100*offset/fileSize).toFixed(2) + "%")
+          callback(evt.target.result); // callback for handling read chunk
+      } else {
+          console.log("Read error: " + evt.target.error);
+          return;
+      }
+      if (offset >= fileSize) {
+          console.log("Done reading file");
+          endTime = Date.now(); 
+          $("#done").html("100%. Time taken: " + (endTime-startTime)/1000 + 
+            "for file size: " + fileSize/(1024*1024) + " MB")
+          lv.ProcessView();
+          return;
+      }
+
+      // of to the next chunk
+      chunkReaderBlock(offset, chunkSize, file);
+    }
+
+    chunkReaderBlock = function(_offset, length, _file) {
+        var r = new FileReader();
+        var blob = _file.slice(_offset, length + _offset);
+        r.onload = readEventHandler;
+        r.readAsText(blob);
+    }
+
+    // now let's start the read with the first block
+    chunkReaderBlock(offset, chunkSize, file);
+  }
+</script>
 
 
 
