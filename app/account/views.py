@@ -3,6 +3,7 @@ from flask.ext.login import (current_user, login_required, login_user,
                              logout_user)
 from flask.ext.rq import get_queue
 
+import os, json, boto3
 from . import account
 from .. import db
 from ..email import send_email
@@ -243,3 +244,43 @@ def unconfirmed():
     if current_user.is_anonymous() or current_user.confirmed:
         return redirect(url_for('main.index'))
     return render_template('account/unconfirmed.html')
+
+
+@account.route("/upload/")
+def upload():
+  # Show the account-edit HTML page:
+  return render_template('account/upload.html')
+
+
+@account.route('/sign-s3/')
+def sign_s3():
+  # Load necessary information into the application
+  S3_BUCKET = os.environ.get('S3_BUCKET')
+
+  # Load required data from the request
+  file_name = request.args.get('file-name')
+  file_type = request.args.get('file-type')
+
+  # Initialise the S3 client
+  s3 = boto3.client('s3')
+
+  # Generate and return the presigned URL
+  presigned_post = s3.generate_presigned_post(
+    Bucket = S3_BUCKET,
+    Key = file_name,
+    Fields = {"acl": "public-read", "Content-Type": file_type},
+    Conditions = [
+      {"acl": "public-read"},
+      {"Content-Type": file_type}
+    ],
+    ExpiresIn = 3600
+  )
+
+  print "presigned_post: "
+  print presigned_post
+  # Return the data to the client
+  return json.dumps({
+    'data': presigned_post,
+    'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+  })
+
