@@ -87,14 +87,25 @@
         <div class="row">
           <div class="col-md-12">
             Progress:
-<div class="progress">
-  <div id="done" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em">
-    0%
-  </div>
-</div>
-  <div id="stats"></div>
-</div>
-</div>
+            <div class="progress">
+              <div id="done" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em">
+                0%
+              </div>
+            </div>
+            <div id="stats"></div>
+            <br>
+            </div>
+          </div>
+        <div class="row">
+          <div class="col-md-12">
+            Upload Progress:
+            <div class="progress">
+              <div id="doneupload" class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em">
+                0%
+              </div>
+            </div>
+            </div>
+          </div>
           <div class="row">
             <div class="col-md-12">
               <table class="table" id="locationTable">
@@ -229,10 +240,10 @@
       // file input
 
       $(document).on('change', ':file', function () {
-        var input = $(this),
+          var input = $(this),
           numFiles = input.get(0).files ? input.get(0).files.length : 1,
           label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-        input.trigger('fileselect', [numFiles, label]);
+          input.trigger('fileselect', [numFiles, label]);
       });
 
       var SCALAR_E7 = 0.0000001;
@@ -253,10 +264,84 @@
           var file = fileInput.files[0];
           count = 0;
           parseFile(file);
+          initUpload(file);
         } else {
           if (log) alert(log);
         }
       });
+
+    function uploadFile(file, s3Data, url, urlUpload){
+      // basic validation
+      var fileType = url.substring(url.lastIndexOf('.') + 1);
+      if (fileType != "json") {
+        alert('File needs to be a json file.');
+        return;
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener("progress", updateProgress);
+      xhr.open('POST', urlUpload);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+
+      var postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      console.log(file);
+      function updateProgress (e) {
+        if (e.lengthComputable) {
+          var percentComplete = ((100*e.loaded)/e.total).toFixed(2);
+          var percentCompleteShort = ((100*e.loaded)/e.total).toFixed(0);
+          $("#doneupload").css('width', percentCompleteShort + '%').attr('aria-valuenow', percentCompleteShort).text(percentComplete+'%')
+        }
+      }
+      xhr.onreadystatechange = function()  {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204) {
+            console.log('done!! file upload');
+          }
+          else{
+            console.log("\n\n\nstatus: ", xhr.status);
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file){
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', `/account/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            var response = JSON.parse(xhr.responseText);
+            console.log("response form json dumps: ", response);
+            uploadFile(file, response.data, response.url, response.url_upload);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+
+    /*
+       Function called when file input updated. If there is a file selected, then
+       start upload procedure by asking for a signed request from the app.
+    */
+    function initUpload(file){
+      if(!file){
+        return alert('No file selected.');
+      }
+      getSignedRequest(file);
+    }
 
       function parseFile(file) {
         var fileSize = file.size;
