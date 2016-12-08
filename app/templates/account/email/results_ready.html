@@ -1,0 +1,15 @@
+<p>Dear {{ user.full_name() }},</p>
+
+<p>Thank you for using <b>{{ config.APP_NAME }}</b>! Your CSV upload has finished processing and your results are ready.</p>
+
+<p>To view your location data results, please <a href="{{ results_link }}">click here</a>.</p>
+
+<p>Alternatively, you can paste the following link in your browser's address bar:</p>
+
+<p>{{ results_link }}</p>
+
+<p>Sincerely,</p>
+
+<p>The {{ config.APP_NAME }} Team</p>
+
+<p><small>Note: replies to this email address are not monitored.</small></p>
