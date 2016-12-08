@@ -256,7 +256,7 @@ def upload():
 def sign_s3():
   # Load necessary information into the application
   S3_BUCKET = os.environ.get('S3_BUCKET')
-
+  S3_REGION = os.environ.get('S3_REGION')
   # Load required data from the request
   pre_file_name = request.args.get('file-name') 
   file_name = ''.join(pre_file_name.split('.')[:-1]) + str(time.time()).replace('.','-') + '.' + ''.join(pre_file_name.split('.')[-1:])
@@ -282,7 +282,7 @@ def sign_s3():
   # Return the data to the client
   return json.dumps({
     'data': presigned_post,
-    'url_upload': 'https://%s.s3-us-west-2.amazonaws.com' % (S3_BUCKET),
-    'url': 'https://%s.s3-us-west-2.amazonaws.com/%s' % (S3_BUCKET, file_name)
+    'url_upload': 'https://%s.%s.amazonaws.com' % (S3_BUCKET, S3_REGION),
+    'url': 'https://%s.%s.amazonaws.com/%s' % (S3_BUCKET, S3_REGION, file_name)
   })
 
