@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Map Upload</title>
+  </head>
+
+  <body>
+    {% block content %}
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js">
+    </script>
+    <link href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js">
+    </script>
+    <!--<link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>-->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
+    </script>
+    <script src="//cdn.bootcss.com/oboe.js/2.1.2/oboe-browser.min.js">
+    </script>
+    <script src="{{url_for('static', filename='PruneCluster.js')}}">
+    </script>
+    <link href="{{ url_for('static', filename='styles/app.css') }}" rel="stylesheet">
+    <script src="{{url_for('static', filename='SimpleShape.js') }}">
+    </script>
+    <script src="{{ url_for('static', filename='Rectangle.js') }}">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js">
+    </script>
+    <style>
+      * {
+        font-family: 'HKGroteskRegular', 'Arial'
+      }
+      
+      body {
+        margin: 0px;
+        height: 100vh;
+        z-index: -1
+      }
+      
+      #mapid {
+        height: 100vh
+      }
+      
+      .table>thead>tr>th {
+        border-bottom: 0px
+      }
+      
+      #upload {
+        background-color: #FFF;
+        height: 50vh;
+        z-index: 1000;
+        padding-top: 50px;
+        height: 100vh;
+        box-shadow: 5px 5px 10px #000
+      }
+      
+      h1 {
+        font-family: 'HKGroteskBold', 'Arial'
+      }
+      
+      p {
+        font-size: 18px
+      }
+    </style>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-4" id="upload">
+          <div class="row">
+            <div class="col-md-12">
+              <h1>Step 1: Upload</h1>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <p>Please select a valid Google Location Map History file (should be in format of LocationHistory.json)</p>
+            </div>
+            <div class="col-md-12">
+              <div class="input-group">
+                <label class="input-group-btn"><span class="btn btn-primary">Upload&hellip; <input accept=".json" id="uploadInput" multiple style="display: none;" type="file"></span></label> <input class="form-control" readonly type="text">
+              </div>
+            </div>
+          </div>
+          <br>
+        <div class="row">
+          <div class="col-md-12">
+            Progress:
+<div class="progress">
+  <div id="done" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em">
+    0%
+  </div>
+</div>
+  <div id="stats"></div>
+</div>
+</div>
+          <div class="row">
+            <div class="col-md-12">
+              <table class="table" id="locationTable">
+                <thead>
+                  <tr>
+                    <th>Locations</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="input-group">
+                <button class="btn btn-primary" id="newBoxButton">New Box</button> &nbsp;&nbsp;&nbsp;
+                <button class="btn btn-danger" id="cancel">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8" id="mapid"></div>
+      </div>
+    </div>
+    <script>
+      // initial state
+      var mymap = L.map('mapid', {
+        scrollWheelZoom: false,
+        zoomControl: false
+      }).setView([39.9526, -75.163], 3);
+
+      L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap<\/a> contributors, ' +
+          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA<\/a>, ' +
+          'Imagery © <a href="http://mapbox.com">Mapbox<\/a>',
+      }).addTo(mymap);
+      L.control.zoom({
+        position: 'bottomright'
+      }).addTo(mymap);
+      $("#cancel").prop('disabled', true);
+      var newBoxMode = false;
+      var bounds = [];
+      var boxes = {};
+      var currentBox;
+      var clicking = false;
+      var dragStart, dragEnd;
+
+      function mousedownMap(e) {
+        if (newBoxMode) {
+          clicking = true;
+          bounds[0] = e.latlng;
+          bounds[1] = e.latlng;
+          currentBox = L.rectangle(bounds, {
+            color: 'blue',
+            weight: 1
+          });
+        }
+      }
+
+      function mousemoveMap(e) {
+        if (newBoxMode && clicking) {
+          bounds[1] = e.latlng;
+          currentBox.setBounds(bounds);
+          currentBox.addTo(mymap);
+        }
+      }
+
+      function createBox(name) {
+        if (name) {
+          boxes[currentBox._leaflet_id] = {
+            'name': name,
+            'rectangle': currentBox,
+          };
+
+          $('#locationTable tr:last').after(
+            '<tr id="' + currentBox._leaflet_id + '"><td>' + name + '</td><td><button class="btn btn-danger deleteBox">Delete</button></td></tr>'
+          );
+
+          $('.deleteBox').on('click', function (e) {
+            var id = this.parentNode.parentNode.id;
+            boxes[id].rectangle.editing.disable();
+            boxes[id].rectangle.remove();
+            delete boxes[id];
+            this.parentNode.parentNode.remove();
+          });
+
+          currentBox.bindPopup(name).openPopup();
+          currentBox.editing.enable();
+        } else {
+          currentBox.remove();
+        }
+        currentBox = null;
+      }
+
+      function mouseupMap(e) {
+        if (newBoxMode && currentBox) {
+          bounds[1] = e.latlng;
+          currentBox.setBounds(bounds);
+          currentBox.addTo(mymap);
+          boxPane = currentBox.getPane();
+
+          bootbox.prompt('Name of location', createBox);
+
+          mymap.dragging.enable();
+          newBoxMode = false;
+          clicking = false;
+          $("#cancel").prop('disabled', true);
+          $("#newBoxButton").prop('disabled', false);
+        }
+      }
+
+      mymap.on('mousedown', mousedownMap);
+      mymap.on('mousemove', mousemoveMap);
+      mymap.on('mouseup', mouseupMap);
+
+
+      $('#newBoxButton').on('click', function (e) {
+        newBoxMode = true;
+        $('#newBoxButton').prop('disabled', true);
+        $('#cancel').prop('disabled', false);
+        mymap.dragging.disable();
+      })
+      $('#cancel').on('click', function (e) {
+        newBoxMode = false;
+        $("#newBoxButton").prop('disabled', false);
+        $("#cancel").prop('disabled', true);
+        mymap.dragging.enable();
+      })
+      var lv = new PruneClusterForLeaflet(160);
+      mymap.addLayer(lv);
+      // file input
+
+      $(document).on('change', ':file', function () {
+        var input = $(this),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+      });
+
+      var SCALAR_E7 = 0.0000001;
+      var os = oboe()
+      os.node('locations.*', function (location) {
+        var marker = new PruneCluster.Marker(location.latitudeE7 * SCALAR_E7,
+          location.longitudeE7 * SCALAR_E7);
+        lv.RegisterMarker(marker);
+        return oboe.drop;
+      }).done('done');
+      $(':file').on('fileselect', function (event, numFiles, label) {
+        var input = $(this).parents('.input-group').find(':text'),
+          log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+        if (input.length) {
+          input.val(log);
+          var fileInput = $('#uploadInput').get(0);
+          var file = fileInput.files[0];
+          count = 0;
+          parseFile(file);
+        } else {
+          if (log) alert(log);
+        }
+      });
+
+      function parseFile(file) {
+        var fileSize = file.size;
+        var chunkSize = 512 * 1024; // bytes
+        var offset = 0;
+        var self = this; // we need a reference to the current object
+        var chunkReaderBlock = null;
+        var startTime = Date.now();
+        var endTime = Date.now();
+        var readEventHandler = function (evt) {
+          if (evt.target.error == null) {
+            offset += evt.target.result.length;
+            var progress = (100 * offset / fileSize).toFixed(2);
+            var trimmed = (100 * offset / fileSize).toFixed(0);
+            $("#done").css('width', trimmed + '%').attr('aria-valuenow', trimmed).text(progress+'%')
+            var chunk = evt.target.result;
+            os.emit('data', chunk); // callback for handling read chunk
+          } else {
+            console.log("Read error: " + evt.target.error);
+            return;
+          }
+          if (offset >= fileSize) {
+            console.log("Done reading file");
+            endTime = Date.now();
+            $("#stats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
+              "s for file size " + (fileSize / (1024 * 1024)).toFixed(2) + " MB")
+            lv.ProcessView()
+            return;
+          }
+
+          // of to the next chunk
+          chunkReaderBlock(offset, chunkSize, file);
+        }
+
+        chunkReaderBlock = function (_offset, length, _file) {
+          var r = new FileReader();
+          var blob = _file.slice(_offset, length + _offset);
+          r.onload = readEventHandler;
+          r.readAsText(blob);
+        }
+
+        // now let's start the read with the first block
+        chunkReaderBlock(offset, chunkSize, file);
+      }
+    </script>{% endblock %}
+  </body>
+    
+</html>
