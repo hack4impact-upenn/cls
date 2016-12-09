@@ -257,6 +257,7 @@ def sign_s3():
   # Load necessary information into the application
   S3_BUCKET = os.environ.get('S3_BUCKET')
   S3_REGION = os.environ.get('S3_REGION')
+  TARGET_FOLDER = 'json/'
   # Load required data from the request
   pre_file_name = request.args.get('file-name') 
   file_name = ''.join(pre_file_name.split('.')[:-1]) + str(time.time()).replace('.','-') + '.' + ''.join(pre_file_name.split('.')[-1:])
@@ -268,7 +269,7 @@ def sign_s3():
   # Generate and return the presigned URL
   presigned_post = s3.generate_presigned_post(
     Bucket = S3_BUCKET,
-    Key = file_name,
+    Key = TARGET_FOLDER + file_name,
     Fields = {"acl": "public-read", "Content-Type": file_type},
     Conditions = [
       {"acl": "public-read"},
