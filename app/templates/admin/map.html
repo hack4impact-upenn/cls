@@ -250,20 +250,22 @@
                   function toggleAllBoxMarkers(e) {
                     var boxKeys = Object.keys(boxes);
                     for (var i = 0; i < boxKeys.length; i++) {
-                      toggleBoxMarker(boxes[boxKeys[i]].rectangle, i);
+                      toggleBoxMarker(boxes[boxKeys[i]], i);
                     }
                   }
 
-                  function toggleBoxMarker(rect, i) {
+                  function toggleBoxMarker(box, i) {
+                    var rect = box.rectangle;
+                    var zoom = box.zoomLevel;
                     var boxPane = rect.getPane().firstChild.firstChild.childNodes[i];
-                    console.log(boxPane);
+                    
                     var w = boxPane.getBoundingClientRect().width;
                     var h = boxPane.getBoundingClientRect().height;
 
-                    if (w < 40 || h < 40) {
-                      rect.editing.disable();
-                    } else {
+                    if ((w > 40 && h > 40) || mymap.getZoom() >= box.zoomLevel) {
                       rect.editing.enable();
+                    } else {
+                      rect.editing.disable();
                     }
                   }
 
