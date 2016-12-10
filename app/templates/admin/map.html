@@ -204,7 +204,6 @@
                   }
 
 
-
                   function createBox(name) {
                     if (name) {
                       boxes[currentBox._leaflet_id] = {
@@ -215,7 +214,7 @@
 
 
                       $('#locationTable tr:last').after(
-                        '<tr id="' + currentBox._leaflet_id + '"><td>' + name + 
+                        '<tr id="' + currentBox._leaflet_id + '"><td>' + name +
                           '</td><td><button id="goToButton' + currentBox._leaflet_id + '" data-box-id="' + currentBox._leaflet_id + '" class="btn btn-default">Go To Box</button>&nbsp;<button class="btn btn-danger deleteBox">Delete</button></td></tr>'
                       );
 
@@ -248,12 +247,31 @@
                     currentBox = null;
                   }
 
+                  function toggleAllBoxMarkers(e) {
+                    var boxKeys = Object.keys(boxes);
+                    for (var i = 0; i < boxKeys.length; i++) {
+                      toggleBoxMarker(boxes[boxKeys[i]].rectangle, i);
+                    }
+                  }
+
+                  function toggleBoxMarker(rect, i) {
+                    var boxPane = rect.getPane().firstChild.firstChild.childNodes[i];
+                    console.log(boxPane);
+                    var w = boxPane.getBoundingClientRect().width;
+                    var h = boxPane.getBoundingClientRect().height;
+
+                    if (w < 40 || h < 40) {
+                      rect.editing.disable();
+                    } else {
+                      rect.editing.enable();
+                    }
+                  }
+
                   function mouseupMap(e) {
                     if (newBoxMode && currentBox) {
                       bounds[1] = e.latlng;
                       currentBox.setBounds(bounds);
                       currentBox.addTo(mymap);
-                      boxPane = currentBox.getPane();
 
                       bootbox.prompt('Name of location', createBox);
 
@@ -268,7 +286,7 @@
                   mymap.on('mousedown', mousedownMap);
                   mymap.on('mousemove', mousemoveMap);
                   mymap.on('mouseup', mouseupMap);
-
+                  mymap.on('zoom', toggleAllBoxMarkers)
 
                   $('#newBoxButton').on('click', function (e) {
                     newBoxMode = true;
@@ -442,7 +460,7 @@
                     $('#submitProcess').on('click', function(e) {
                       var errString = "";
                       $('#submitErrors').remove();
-                      if (!uploadURL) { 
+                      if (!uploadURL) {
                         errString += "No file has been uploaded. Please select a file.";
                       }
                       if (Object.keys(boxes).length <= 0) {
@@ -450,9 +468,9 @@
                       }
                       if (errString.length > 0) {
                         $('#submitProcess').before("<div id='submitErrors' class='col-md-12'><div class='alert alert-danger'>"+ errString + "</div></div>");
-                      } else { 
+                      } else {
                       var obj = processData(uploadURL, boxes);
-                      console.log(obj); 
+                      console.log(obj);
                       var csrftoken = $('meta[name=csrf-token]').attr('content')
                       $.post({
                           url: '{{ url_for("account.analyze") }}',
