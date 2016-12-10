@@ -367,7 +367,7 @@
                    */
                    function getSignedRequest(file){
                      var xhr = new XMLHttpRequest();
-                     xhr.open('GET', `/account/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+                     xhr.open('GET', '/sign-s3?file-name=' + file.name + '&file-type=' + file.type);
                      xhr.onreadystatechange = function() {
                        if(xhr.readyState === 4){
                          if(xhr.status === 200){
@@ -408,6 +408,7 @@
                           var progress = (100 * offset / fileSize).toFixed(2);
                           var trimmed = (100 * offset / fileSize).toFixed(0);
                           $("#done").css('width', trimmed + '%').attr('aria-valuenow', trimmed).text(progress+'%')
+                          console.log(trimmed);
                           var chunk = evt.target.result;
                           os.emit('data', chunk); // callback for handling read chunk
                         } else {
@@ -455,7 +456,7 @@
                       console.log(obj); 
                       var csrftoken = $('meta[name=csrf-token]').attr('content')
                       $.post({
-                          url: '{{ url_for("account.analyze") }}',
+                          url: '{{ url_for("main.analyze") }}',
                           data: {json: JSON.stringify(obj)},
                           dataType: "JSON",
                           success: function(res) {
