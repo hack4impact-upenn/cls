@@ -105,6 +105,8 @@
                 0%
               </div>
             </div>
+            <div id="uploadstats"></div>
+            <br>
             </div>
           </div>
           <div class="row">
@@ -316,6 +318,8 @@
         alert('File needs to be a json file.');
         return;
       }
+      var startTime = Date.now();
+      var endTime = Date.now();
       var xhr = new XMLHttpRequest();
       xhr.upload.addEventListener("progress", updateProgress);
       xhr.open('POST', urlUpload);
@@ -337,7 +341,9 @@
       xhr.onreadystatechange = function()  {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204) {
-            console.log('done!! file upload');
+            endTime = Date.now();
+            $("#uploadstats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
+              "s for file size " + (file.size / (1024 * 1024)).toFixed(2) + " MB")
           }
           else{
             console.log("\n\n\nstatus: ", xhr.status);
