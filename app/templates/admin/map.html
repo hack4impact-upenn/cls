@@ -18,12 +18,12 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
     </script>
-    <script src="//cdn.bootcss.com/oboe.js/2.1.2/oboe-browser.min.js">
-    </script>
     <script src="{{url_for('static', filename='PruneCluster.js')}}">
     </script>
     <link href="{{ url_for('static', filename='styles/app.css') }}" rel="stylesheet">
     <script src="{{url_for('static', filename='SimpleShape.js') }}">
+    </script>
+    <script src="{{url_for('static', filename='oboe.min.js') }}">
     </script>
     <script src="{{ url_for('static', filename='Rectangle.js') }}">
     </script>
@@ -53,8 +53,9 @@
         height: 50vh;
         z-index: 1000;
         padding-top: 50px;
-        height: 100vh;
-        box-shadow: 5px 5px 10px #000
+        min-height: 100vh;
+        box-shadow: 5px 5px 10px #000;
+        overflow-y: scroll;
       }
       
       h1 {
@@ -108,10 +109,17 @@
           </div>
           <div class="row">
             <div class="col-md-12">
+              <h1>Step 2: Select Bounding Boxes </h1>
+            </div>
+            <div class="col-md-12">
+              <p>Click "New Box" and drag to select an area to process on the map.</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
               <table class="table" id="locationTable">
                 <thead>
                   <tr>
-                    <th>Locations</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -126,11 +134,24 @@
               </div>
             </div>
           </div>
+          <br>
+          <div class="row">
+            <div class="col-md-12">
+              <h1>Step 3: Submit</h1>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <button class="btn btn-success" style="width: 100%" id="submitProcess">Submit for processing</button>
+            </div>
+          </div>
+          <br><br><br>
         </div>
         <div class="col-md-8" id="mapid"></div>
       </div>
     </div>
     <script>
+      
       // initial state
       var mymap = L.map('mapid', {
         scrollWheelZoom: false,
@@ -174,16 +195,34 @@
         }
       }
 
+
+
       function createBox(name) {
         if (name) {
           boxes[currentBox._leaflet_id] = {
             'name': name,
             'rectangle': currentBox,
+            'zoomLevel': mymap.getZoom()
           };
 
+
           $('#locationTable tr:last').after(
-            '<tr id="' + currentBox._leaflet_id + '"><td>' + name + '</td><td><button class="btn btn-danger deleteBox">Delete</button></td></tr>'
+            '<tr id="' + currentBox._leaflet_id + '"><td>' + name + 
+              '</td><td><button id="goToButton' + currentBox._leaflet_id + '" data-box-id="' + currentBox._leaflet_id + '" class="btn btn-default">Go To Box</button>&nbsp;<button class="btn btn-danger deleteBox">Delete</button></td></tr>'
           );
+
+          $('#goToButton' + currentBox._leaflet_id).on('click', function(e) {
+            var obj = boxes[$(this).data('boxId')]
+            console.log(obj);
+            var bounds = obj.rectangle._bounds;
+            var neLat = bounds._northEast.lat
+            var neLon = bounds._northEast.lng
+            var swLat = bounds._southWest.lat
+            var swLon = bounds._southWest.lng
+            var lat = swLat + ((neLat - swLat)/2);
+            var long = swLon - ((neLon - swLon)/2);
+            mymap.setView(L.latLng(lat, long), obj.zoomLevel);
+          })
 
           $('.deleteBox').on('click', function (e) {
             var id = this.parentNode.parentNode.id;
