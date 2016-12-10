@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask.ext.login import (current_user, login_required, login_user,
                              logout_user)
 from flask.ext.rq import get_queue
@@ -11,7 +11,7 @@ from ..models import User
 from .forms import (ChangeEmailForm, ChangePasswordForm, CreatePasswordForm,
                     LoginForm, RegistrationForm, RequestResetPasswordForm,
                     ResetPasswordForm)
-
+from app import csrf
 
 @account.route('/login', methods=['GET', 'POST'])
 def login():
@@ -251,6 +251,12 @@ def upload():
   # Show the account-edit HTML page:
   return render_template('account/upload.html')
 
+@csrf.exempt
+@account.route('/analyze/', methods=["POST"])
+def analyze():
+    data = json.loads(request.form['json'])
+    print data
+    return jsonify({'status':'OK'});
 
 @account.route('/sign-s3/')
 def sign_s3():

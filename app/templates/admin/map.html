@@ -8,6 +8,7 @@
   <body>
     {% block content %}
     <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js">
     </script>
@@ -176,6 +177,8 @@
       var currentBox;
       var clicking = false;
       var dragStart, dragEnd;
+      var uploadURL;
+      
 
       function mousedownMap(e) {
         if (newBoxMode) {
@@ -342,12 +345,12 @@
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204) {
             endTime = Date.now();
-            $("#uploadstats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
-              "s for file size " + (file.size / (1024 * 1024)).toFixed(2) + " MB")
+            $("#uploadstats").html("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
+              "s for file size " + (file.size / (1024 * 1024)).toFixed(2) + " MB. File download <a href='" + url + "' target='_blank'>here</a> for 24 hrs.")
+            uploadURL = url
           }
           else{
-            console.log("\n\n\nstatus: ", xhr.status);
-            alert('Could not upload file.');
+            $("#uploadstats").html("Could not upload file, please refresh page.");
           }
         }
       };
@@ -430,6 +433,62 @@
 
         // now let's start the read with the first block
         chunkReaderBlock(offset, chunkSize, file);
+      }
+
+      
+      $('#submitProcess').on('click', function(e) {
+        var errString = "";
+        $('#submitErrors').remove();
+        if (!uploadURL) { 
+          errString += "No file has been uploaded. Please select a file.";
+        }
+        if (Object.keys(boxes).length <= 0) {
+          errString += " Please select at least one bounding box."
+        }
+        if (errString.length > 0) {
+          $('#submitProcess').before("<div id='submitErrors' class='col-md-12'><div class='alert alert-danger'>"+ errString + "</div></div>");
+        }
+        var obj = processData(uploadURL, boxes);
+        console.log(obj); 
+        var csrftoken = $('meta[name=csrf-token]').attr('content')
+        $.post({
+            url: '{{ url_for("account.analyze") }}',
+            data: {json: JSON.stringify(obj)},
+            dataType: "JSON",
+            success: function(res) {
+              console.log('yipee!');
+            },
+            error: function(err) {
+              console.log(err)
+            }
+        });
+      });
+
+      function processData(uploadURL, boxes) {
+        var url = uploadURL;
+        var boxKeys = Object.keys(boxes);
+        var resBoxArray = [];
+        for(var i = 0; i < boxKeys.length; i++) {
+          var parseObj = boxes[boxKeys[i]];
+          var bounds = parseObj.rectangle._bounds;
+          var ne = bounds._northEast;
+          var sw = bounds._southWest;
+          var neLat = ne.lat;
+          var neLng = ne.lng;
+          var swLat = sw.lat;
+          var swLng = sw.lng;
+          resBoxArray.push( {
+              name: parseObj.name,
+              neLat: neLat,
+              neLng: neLng,
+              swLat: swLat,
+              swLng: swLng
+          });
+        }
+        return {
+          url: url,
+          boxes: resBoxArray
+        }
       }
     </script>{% endblock %}
   </body>
