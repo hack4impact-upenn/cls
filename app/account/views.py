@@ -1,7 +1,9 @@
+from datetime import datetime
 from flask import flash, redirect, render_template, request, url_for, jsonify
 from flask.ext.login import (current_user, login_required, login_user,
                              logout_user)
 from flask.ext.rq import get_queue
+import requests
 import time
 import os, json, boto3
 from . import account
@@ -255,8 +257,60 @@ def upload():
 @account.route('/analyze/', methods=["POST"])
 def analyze():
     data = json.loads(request.form['json'])
-    print data
+    start = data['dayStart']
+    end = data['dayEnd']
+    r = requests.get(data['url'])
+    json = r.json()
+    location_data = json['locations']
+    csv = create_csv(start, end, boxes, location_data)
     return jsonify({'status':'OK'});
+
+def create_csv(start, end, bounding_boxes, location_data):
+    # Stores flag for if we are currently in the box, as well as enter time.
+    inside = [False] * len(bounding_boxes)
+    start_times = [None] * len(bounding_boxes)
+    durations = [0] * len(bounding_boxes)
+    during_week = in_week(time, start, end)
+    for point in location_data['locations']:
+        time = point['timestampMs']
+        if during_week == in_week(time, start, end):
+            continue
+        # End of the week
+        elif during_week:
+            write_to_csv(durations, bounding_boxes)
+            durations = [0] * len(bounding_boxes)
+        during_week = in_week(time, start, end)
+        latitude = point['latitudeE7'] / math.pow(10, 7)
+        longitude = point['longitudeE7'] / math.pow(10, 7)
+        for i in range(len(bounding_boxes)):
+            box = bounding_boxes[i]
+            if inbounds(bounding_box, latitude, longitude) and \
+                    not inside[i]:
+                inside[i] = True
+                start_times[i] = time
+            elif not inbounds(bounding_box, latitude, longitude) and \
+                    inside[i]:
+                inside[i] = False
+                durations[i] += time - start_times[i]
+
+def inbounds(bounding_box, latitude, longitude):
+    return bounding_box['swLat'] >= latitude and \
+           bounding_box['neLat'] <= latitude and \
+           bounding_box['swLng'] <= longitude and \
+           bounding_box['neLng'] >= longitude
+
+def in_week(time, start, end):
+    current_day = datetime.fromtimestamp(time).weekday()
+    start_day = datetime.fromtimestamp(start).weekday()
+    end_day = datetime.fromtimestamp(end).weekday()
+    if start_day < end_day:
+        return current_day >= start_day and current_day <= end_day
+    else:
+        return current_day <= start_day and current_day >= end_day
+
+def write_to_csv(durations, bounding_boxes):
+    for i in range(len(bounding_boxes)):
+        print bounding_boxes[i]['name'], durations[i]
 
 @account.route('/sign-s3/')
 def sign_s3():
