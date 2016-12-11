@@ -262,11 +262,12 @@ def analyze():
     start = data['dayStart'] # 0 - 7
     end = data['dayEnd'] # 0 - 7
     url = data['url']
+    boxes = data['boxes']
     rq = get_queue()
     request_job = rq.enqueue(requests.get, url)
     create_csv_job = rq.enqueue(create_csv, start, end, boxes,
                                 request_job.result, depends_on=request_job)
-    return jsonify({'status':'OK'});
+    return jsonify({'status':'OK'})
 
 def create_csv(start, end, bounding_boxes, location_request):
     location_json = location_request.json()
