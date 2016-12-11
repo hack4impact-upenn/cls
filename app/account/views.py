@@ -257,45 +257,57 @@ def upload():
 @account.route('/analyze/', methods=["POST"])
 def analyze():
     data = json.loads(request.form['json'])
-    start = data['dayStart']
-    end = data['dayEnd']
-    r = requests.get(data['url'])
-    json = r.json()
-    location_data = json['locations']
-    csv = create_csv(start, end, boxes, location_data)
+    print "Submitted:"
+    print data
+    start = data['dayStart'] # 0 - 7
+    end = data['dayEnd'] # 0 - 7
+    url = data['url']
+    rq = get_queue()
+    request_job = rq.enqueue(requests.get, url)
+    create_csv_job = rq.enqueue(create_csv, start, end, boxes,
+                                request_job.result, depends_on=request_job)
     return jsonify({'status':'OK'});
 
-def create_csv(start, end, bounding_boxes, location_data):
-    # Stores flag for if we are currently in the box, as well as enter time.
+def create_csv(start, end, bounding_boxes, location_request):
+    location_json = location_request.json()
+    # Stores flag for if we are currently in the box.
     inside = [False] * len(bounding_boxes)
+    # Stores the start time of current interval in the box.
     start_times = [None] * len(bounding_boxes)
+    # Stores the sum of time in a box over a week.
     durations = [0] * len(bounding_boxes)
-    during_week = in_week(time, start, end)
+    # Checks if a timestamp is during the work week.
+    during_week = False
     for point in location_data['locations']:
+        print point
         time = point['timestampMs']
         if during_week == in_week(time, start, end):
             continue
-        # End of the week
+        # End of the week.
         elif during_week:
             write_to_csv(durations, bounding_boxes)
             durations = [0] * len(bounding_boxes)
+        # Adjust week flag.
         during_week = in_week(time, start, end)
         latitude = point['latitudeE7'] / math.pow(10, 7)
         longitude = point['longitudeE7'] / math.pow(10, 7)
+        # Iterate through boxes.
         for i in range(len(bounding_boxes)):
             box = bounding_boxes[i]
+            # Enter a bounding box.
             if inbounds(bounding_box, latitude, longitude) and \
                     not inside[i]:
                 inside[i] = True
                 start_times[i] = time
+            # Exit a bounding box.
             elif not inbounds(bounding_box, latitude, longitude) and \
                     inside[i]:
                 inside[i] = False
                 durations[i] += time - start_times[i]
 
 def inbounds(bounding_box, latitude, longitude):
-    return bounding_box['swLat'] >= latitude and \
-           bounding_box['neLat'] <= latitude and \
+    return bounding_box['swLat'] <= latitude and \
+           bounding_box['neLat'] >= latitude and \
            bounding_box['swLng'] <= longitude and \
            bounding_box['neLng'] >= longitude
 
@@ -310,6 +322,7 @@ def in_week(time, start, end):
 
 def write_to_csv(durations, bounding_boxes):
     for i in range(len(bounding_boxes)):
+        # TODO: Write to a file
         print bounding_boxes[i]['name'], durations[i]
 
 @account.route('/sign-s3/')
