@@ -556,7 +556,7 @@
 
         // INIT CSV
         var csv = [
-          ["name of area", "end time", "duration"]
+          ["name of area", "start time", "end time", "duration"]
         ];
         weekStartMS = 0;
         weekEndMS = 0;
@@ -575,7 +575,7 @@
             errString += " Please enter a name for your file."
           }
           if ($("#startDay").val() === "") {
-            errString += " Please select a valid start day"
+            errString += " Please select a valid start day."
           }
           if ($("#endDay").val() === "") {
             errString += " Please select a valid end day."
@@ -586,14 +586,16 @@
           } else {
             obj = processData(uploadURL, boxes, $('#email').val(), $('#startDay').val(), $('#endDay').val());
             inside = new Array(obj.boxes.length).fill(false);
-            startTimes = new Array(obj.boxes.length).fill(null);
+            endTimes = new Array(obj.boxes.length).fill(null);
             durations = new Array(obj.boxes.length).fill(0);
             var newOboe = oboe();
 
             newOboe.node('locations.*', function (location) {
               if (weekEndMS === 0) {
+                // iffy logic
                 weekEndMS = moment.unix(location.timestampMs / 1000).day(obj.dayEnd).hour(23).minute(59).unix() * 1000;
                 weekStartMS = moment.unix(location.timestampMs / 1000).day(obj.dayStart).hour(0).minute(0).unix() * 1000;
+                console.log("first work week: " + moment.unix(weekStartMS / 1000).format('MM-DD-YYYY ddd HH:mm') + " " + moment.unix(weekEndMS / 1000).format('MM-DD-YYYY ddd HH:mm'));
               }
 
               if (location.timestampMs >= weekStartMS && location.timestampMs <= weekEndMS) {
@@ -603,48 +605,94 @@
                   var box = obj.boxes[i];
                   var lat = location.latitudeE7 / Math.pow(10, 7)
                   var lng = location.longitudeE7 / Math.pow(10, 7)
-                    // check if in box coors && not inside a box
+                    // Entering box.
                   if (box['swLat'] <= lat && box['neLat'] >= lat &&
                     box['swLng'] <= lng && box['neLng'] >= lng && !inside[i]) {
-                    console.log('enetered ' + box.name);
+                    console.log('entered ' + box.name);
                     inside[i] = true;
-                    startTimes[i] = location.timestampMs;
-                  } else if ((box['swLat'] <= lat && box['neLat'] >= lat &&
-                      box['swLng'] <= lng && box['neLng'] >= lng) && !inside[i]) {
-                    durations[i] = Math.abs(location.timestampMs - startTimes[i]);
+                    endTimes[i] = location.timestampMs;
                   }
-                  // not inside the box
+                  // Exiting box.
                   else if (!(box['swLat'] <= lat && box['neLat'] >= lat &&
                       box['swLng'] <= lng && box['neLng'] >= lng) && inside[i]) {
+                    var startDate = moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY ddd HH:mm');
+                    var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY ddd HH:mm');
+                    var intervalDuration = endTimes[i] - location.timestampMs;
+                    console.log("interval duration: " + intervalDuration);
+                    csv.push([box['name'], startDate, endDate,
+                      (intervalDuration / 1000 / 3600).toFixed(2) + ' hrs'
+                    ])
+                    console.log('pushed:' + box['name'] + ' ' + startDate + ' ' + endDate + ' ' + (intervalDuration / 1000 / 3600).toFixed(2) + ' hrs');
                     inside[i] = false;
-                    durations[i] = Math.abs(location.timestampMs - startTimes[i]);
+                    durations[i] += Math.abs(intervalDuration);
                   }
                 }
 
               }
               else if (location.timestampMs < weekStartMS) {
-                console.log(moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY ddd HH:mm'));
-                weekEndMS -= 604800000
-                weekStartMS -= 604800000
-                var locationtotal = 0;
                 for (var i = 0; i < obj.boxes.length; i++) {
-                  if (startTimes[i] && durations[i] > 0) {
-                    console.log('pushed!' + startTimes[i]);
-                    csv.push([obj.boxes[i].name, moment.unix(startTimes[i] / 1000).format('MM-DD-YYYY ddd HH:mm'),
-                      (durations[i] / 1000 / 3600).toFixed(2) + " hrs"
+                  // iterate thru the boxes
+                  var box = obj.boxes[i];
+                  var lat = location.latitudeE7 / Math.pow(10, 7)
+                  var lng = location.longitudeE7 / Math.pow(10, 7)
+                    // Entering box.
+                  if (box['swLat'] <= lat && box['neLat'] >= lat &&
+                    box['swLng'] <= lng && box['neLng'] >= lng && !inside[i]) {
+                    console.log('entered ' + box.name);
+                    inside[i] = true;
+                    endTimes[i] = location.timestampMs;
+                  }
+                  // In box over the weekend.
+                  else if (inside[i]) {
+                    inside[i] = false;
+                    // Add interval from weekStart to endTime.
+                    var startDate = moment.unix(weekStartMS / 1000).format('MM-DD-YYYY ddd HH:mm');
+                    var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY ddd HH:mm');
+                    var intervalDuration = endTimes[i] - weekStartMS;
+                    console.log("interval duration: " + intervalDuration);
+                    csv.push([box['name'], startDate, endDate,
+                      (intervalDuration / 1000 / 3600).toFixed(2) + ' hrs'
                     ])
-                    startTimes[i] = weekEndMS;
-                    locationtotal += (durations[i] / 1000 / 3600).toFixed(2)
+                    console.log('pushed:' + box['name'] + ' ' + startDate + ' ' + endDate + ' ' + (intervalDuration / 1000 / 3600).toFixed(2) + ' hrs');
+                    durations[i] += Math.abs(intervalDuration);
+
+                    // Update endTime to the new week.
+                    endTimes[i] = weekEndMS - 604800000;
+
+                    // Exiting box.
+                    if (!(box['swLat'] <= lat && box['neLat'] >= lat &&
+                      box['swLng'] <= lng && box['neLng'] >= lng)) {
+                      inside[i] = false;
+                    }
                   }
                 }
-                if (locationtotal > 0) {
-                  csv.push([], ["Total time this week is: " + locationtotal], [])
+                var locationTotal = 0;
+                for (var i = 0; i < obj.boxes.length; i++) {
+                  if (durations[i] > 0) {
+                    locationTotal += (durations[i] / 1000 / 3600).toFixed(2);
+                    durations[i] = 0;
+                  }
                 }
+                if (locationTotal > 0) {
+                  var startDate = moment.unix(weekStartMS / 1000).format('MM-DD-YYYY ddd HH:mm');
+                  var endDate = moment.unix(weekEndMS / 1000).format('MM-DD-YYYY ddd HH:mm');
+                  console.log('Total time this week is: ' + locationTotal);
+                  csv.push(['Total time this week:', startDate, endDate, locationTotal + ' hrs'], []);
+                }
+
+                // Update week timestamps.
+                weekEndMS -= 604800000;
+                weekStartMS -= 604800000;
+                var startDate = moment.unix(weekStartMS / 1000).format('MM-DD-YYYY ddd HH:mm');
+                var endDate = moment.unix(weekEndMS / 1000).format('MM-DD-YYYY ddd HH:mm');
+                console.log("New week: " + startDate + " " + endDate);
 
               }
               return oboe.drop;
-            }).done('done');
-            parseFileToCSV($('#uploadInput').get(0).files[0], newOboe)
+            }).fail(function(err) {
+              console.log(err);
+            });
+            parseFileToCSV($('#uploadInput').get(0).files[0], newOboe);
           }
         });
 
