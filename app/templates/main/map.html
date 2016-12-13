@@ -617,7 +617,7 @@
                       box['swLng'] <= lng && box['neLng'] >= lng) && inside[i]) {
                     var startDate = moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY ddd HH:mm');
                     var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY ddd HH:mm');
-                    var intervalDuration = endTimes[i] - location.timestampMs;
+                    var intervalDuration = Math.abs(endTimes[i] - location.timestampMs);
                     console.log("interval duration: " + intervalDuration);
                     csv.push([box['name'], startDate, endDate,
                       (intervalDuration / 1000 / 3600).toFixed(2) + ' hrs'
@@ -644,11 +644,10 @@
                   }
                   // In box over the weekend.
                   else if (inside[i]) {
-                    inside[i] = false;
                     // Add interval from weekStart to endTime.
                     var startDate = moment.unix(weekStartMS / 1000).format('MM-DD-YYYY ddd HH:mm');
                     var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY ddd HH:mm');
-                    var intervalDuration = endTimes[i] - weekStartMS;
+                    var intervalDuration = Math.abs(endTimes[i] - weekStartMS);
                     console.log("interval duration: " + intervalDuration);
                     csv.push([box['name'], startDate, endDate,
                       (intervalDuration / 1000 / 3600).toFixed(2) + ' hrs'
@@ -657,8 +656,9 @@
                     durations[i] += Math.abs(intervalDuration);
 
                     // Update endTime to the new week.
+                    console.log('PREV:' + endTimes[i]);
                     endTimes[i] = weekEndMS - 604800000;
-
+                    console.log('POST' + endTimes[i]);
                     // Exiting box.
                     if (!(box['swLat'] <= lat && box['neLat'] >= lat &&
                       box['swLng'] <= lng && box['neLng'] >= lng)) {
@@ -669,16 +669,15 @@
                 var locationTotal = 0;
                 for (var i = 0; i < obj.boxes.length; i++) {
                   if (durations[i] > 0) {
-                    locationTotal += (durations[i] / 1000 / 3600).toFixed(2);
+                    locationTotal += (durations[i] / 1000 / 3600);
                     durations[i] = 0;
                   }
                 }
-                if (locationTotal > 0) {
-                  var startDate = moment.unix(weekStartMS / 1000).format('MM-DD-YYYY ddd HH:mm');
-                  var endDate = moment.unix(weekEndMS / 1000).format('MM-DD-YYYY ddd HH:mm');
-                  console.log('Total time this week is: ' + locationTotal);
-                  csv.push(['Total time this week:', startDate, endDate, locationTotal + ' hrs'], []);
-                }
+                var startDate = moment.unix(weekStartMS / 1000).format('MM-DD-YYYY ddd HH:mm');
+                var endDate = moment.unix(weekEndMS / 1000).format('MM-DD-YYYY ddd HH:mm');
+                console.log('Total time this week is: ' + locationTotal);
+                csv.push(['Total time this week:', startDate, endDate, locationTotal.toFixed(2) + ' hrs']);
+                csv.push([,,]);
 
                 // Update week timestamps.
                 weekEndMS -= 604800000;
