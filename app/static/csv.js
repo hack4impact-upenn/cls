@@ -145,7 +145,7 @@ function parseFileToCSV(file, oboeInstance) {
     if (offset >= fileSize) {
       oboeInstance.emit('done');
       console.log("Done reading file");
-      $("#step-2").css('display', 'block');
+      console.log("Done reading file");
       endTime = Date.now();
       // $("#stats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
       //   "s for file size " + (fileSize / (1024 * 1024)).toFixed(2) + " MB")

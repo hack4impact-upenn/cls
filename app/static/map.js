@@ -50,6 +50,8 @@ function mousemoveMap(e) {
 /* HANDLE MAKING CHANGES TO THE TABLE FOR SHOWING BOXES */
 function createBox(name) {
   if (name) {
+    $('#step-3').fadeIn(1000);
+    
     boxes[currentBox._leaflet_id] = {
       'name': name,
       'rectangle': currentBox,
