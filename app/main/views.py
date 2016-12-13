@@ -94,9 +94,9 @@ def sign_s3():
   S3_REGION = os.environ.get('S3_REGION')
   TARGET_FOLDER = 'json'
   # Load required data from the request
-  pre_file_name = request.args.get('file-name') 
-  file_name = ''.join(pre_file_name.split('.')[:-1]) + str(time.time()).replace('.','-') + '.' + ''.join(pre_file_name.split('.')[-1:])
   file_type = request.args.get('file-type')
+  pre_file_name = request.args.get('file-name') 
+  file_name = ''.join(pre_file_name) + str(time.time()).replace('.','-') + '.' + ''.join(file_type)
 
   # Initialise the S3 client
   s3 = boto3.client('s3', 'us-west-2')

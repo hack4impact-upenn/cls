@@ -29,6 +29,12 @@
           if (errString.length > 0) {
             $('#submitProcess').before("<div id='submitErrors' class='col-md-12'><div class='alert alert-danger'>" + errString + "<\/div><\/div>");
           } else {
+            swal({
+              title: "Processing Location Data",
+              text: '<div class="progress"><div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-success" id="donecsv" role="progressbar" style="min-width: 2em">0%</div>',
+              html: true,
+              showConfirmButton: false
+            });
             obj = processData(uploadURL, boxes, $('#email').val(), $('#startDay').val(), $('#endDay').val());
             inside = new Array(obj.boxes.length).fill(false);
             endTimes = new Array(obj.boxes.length).fill(null);
@@ -183,7 +189,7 @@
               offset += evt.target.result.length;
               var progress = (100 * offset / fileSize).toFixed(2);
               var trimmed = (100 * offset / fileSize).toFixed(0);
-              $("#done").css('width', trimmed + '%').attr('aria-valuenow', trimmed).text(progress + '%')
+              $("#donecsv").css('width', trimmed + '%').attr('aria-valuenow', trimmed).text(progress + '%')
                 // console.log(progress);
               var chunk = evt.target.result;
               oboeInstance.emit('data', chunk); // callback for handling read chunk
@@ -195,6 +201,18 @@
               oboeInstance.emit('done');
               console.log("Done reading file");
               endTime = Date.now();
+              swal({
+                title: "Your file has been created",
+                text: '<div id="swalupload" Upload progress: <br> <div class="progress"><div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-success" id="doneupload" role="progressbar" style="min-width: 2em">0%</div></div>',
+                type: "success",
+                html: 'true',
+                confirmButtonText: "Clear page and reload",
+              },
+              function(isConfirm){
+                if (isConfirm) {
+                  location.reload()
+                } 
+              });
               // $("#stats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
               //   "s for file size " + (fileSize / (1024 * 1024)).toFixed(2) + " MB")
               // lv.ProcessView()
@@ -204,6 +222,7 @@
                 csvContent += index < csv.length ? dataString + "\n" : dataString;
               });
               var encodedUri = encodeURI(csvContent);
+              initUpload(csvContent, $("#filename").val(), 'csv');
               var link = document.createElement("a");
               link.setAttribute("href", encodedUri);
               link.setAttribute("download", "" + $("#filename").val() + ".csv");

@@ -36,84 +36,78 @@ $(':file').on('fileselect', function (event, numFiles, label) {
   }
 });
 
-//
-// function uploadFile(file, s3Data, url, urlUpload) {
-//   // basic validation
-//   var fileType = url.substring(url.lastIndexOf('.') + 1);
-//   if (fileType != "json") {
-//     alert('File needs to be a json file.');
-//     return;
-//   }
-//   var startTime = Date.now();
-//   var endTime = Date.now();
-//   var xhr = new XMLHttpRequest();
-//   xhr.upload.addEventListener("progress", updateProgress);
-//   xhr.open('POST', urlUpload);
-//   xhr.setRequestHeader('x-amz-acl', 'public-read');
-//
-//   var postData = new FormData();
-//   for (key in s3Data.fields) {
-//     postData.append(key, s3Data.fields[key]);
-//   }
-//   postData.append('file', file);
-//   console.log(file);
-//
-//   function updateProgress(e) {
-//     if (e.lengthComputable) {
-//       var percentComplete = ((100 * e.loaded) / e.total).toFixed(2);
-//       var percentCompleteShort = ((100 * e.loaded) / e.total).toFixed(0);
-//       $("#doneupload").css('width', percentCompleteShort + '%').attr('aria-valuenow', percentCompleteShort).text(percentComplete + '%')
-//     }
-//   }
-//   xhr.onreadystatechange = function () {
-//     if (xhr.readyState === 4) {
-//       if (xhr.status === 200 || xhr.status === 204) {
-//         endTime = Date.now();
-//         $("#uploadstats").html("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
-//           "s for file size " + (file.size / (1024 * 1024)).toFixed(2) + " MB. File download <a href='" + url + "' target='_blank'>here<\/a> for 24 hrs.")
-//         uploadURL = url
-//       }
-//       else {
-//         $("#uploadstats").html("Could not upload file, please refresh page.");
-//       }
-//     }
-//   };
-//   xhr.send(postData);
-// }
 
-/*
- Function to get the temporary signed request from the Python app.
- If request successful, continue to upload the file using this signed
- request.
- */
-// function getSignedRequest(file) {
-//   var xhr = new XMLHttpRequest();
-//   xhr.open('GET', '/sign-s3?file-name=' + file.name + '&file-type=' + file.type);
-//   xhr.onreadystatechange = function () {
-//     if (xhr.readyState === 4) {
-//       if (xhr.status === 200) {
-//         var response = JSON.parse(xhr.responseText);
-//         console.log("response form json dumps: ", response);
-//         uploadFile(file, response.data, response.url, response.url_upload);
-//       }
-//       else {
-//         alert('Could not get signed URL.');
-//       }
-//     }
-//   };
-//   xhr.send();
-// }
+function uploadFile(file, s3Data, url, urlUpload) {
+  // basic validation
+  var fileType = url.substring(url.lastIndexOf('.') + 1);
+  var startTime = Date.now();
+  var endTime = Date.now();
+  var xhr = new XMLHttpRequest();
+  xhr.upload.addEventListener("progress", updateProgress);
+  xhr.open('POST', urlUpload);
+  xhr.setRequestHeader('x-amz-acl', 'public-read');
 
-/*
- Function called when file input updated. If there is a file selected, then
- start upload procedure by asking for a signed request from the app.
- */
-// function initUpload(file) {
-//   if (!file) {
-//     return alert('No file selected.');
-//   }
-//   getSignedRequest(file);
-// }
+  var postData = new FormData();
+  for (key in s3Data.fields) {
+    postData.append(key, s3Data.fields[key]);
+  }
+  postData.append('file', file);
+  console.log(file);
+
+  function updateProgress(e) {
+    if (e.lengthComputable) {
+      var percentComplete = ((100 * e.loaded) / e.total).toFixed(2);
+      var percentCompleteShort = ((100 * e.loaded) / e.total).toFixed(0);
+      $("#doneupload").css('width', percentCompleteShort + '%').attr('aria-valuenow', percentCompleteShort).text(percentComplete + '%')
+    }
+  }
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200 || xhr.status === 204) {
+        endTime = Date.now();
+        $("#swalupload").html("File available at <a href=" + url + ">" + url +"</a> for 24 hrs");
+      }
+      else {
+        $("#uploadstats").html("Could not upload file, please refresh page.");
+      }
+    }
+  };
+  xhr.send(postData);
+}
+
+
+/*Function to get the temporary signed request from the Python app.
+  If request successful, continue to upload the file using this signed
+  request. */
+
+  function getSignedRequest(file, name, type) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/sign-s3?file-name=' + name + '&file-type=' + type);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          var response = JSON.parse(xhr.responseText);
+          console.log("response form json dumps: ", response);
+          uploadFile(file, response.data, response.url, response.url_upload);
+        }
+        else {
+          alert('Could not get signed URL.');
+        }
+      }
+    };
+    xhr.send();
+  }
+
+
+  /* Function called when file input updated. If there is a file selected, then
+    start upload procedure by asking for a signed request from the app.
+   */
+    function initUpload(file, name, type) {
+      if (!file) {
+        return alert('No file selected.');
+      }
+      getSignedRequest(file, name, type);
+    }
 
 
 /*
