@@ -66,6 +66,10 @@
                     p {
                       font-size: 18px
                     }
+            .tutorial-img {
+            width:100%;
+          padding:10px 5px;
+        }
                   </style>
                   <div class="container-fluid">
                     <div class="row">
@@ -78,6 +82,7 @@
                         <div class="row">
                           <div class="col-md-12">
                             <p>Please select a valid Google Location Map History file (should be in format of LocationHistory.json)</p>
+              <a href="#upload-instructions-modal" data-toggle="modal" data-target="#upload-instructions-modal"><span onclick="sendEvent(1)" class="glyphicon glyphicon-info-sign upload-instructions" aria-hidden="true"></span></a>
                           </div>
                           <div class="col-md-12">
                             <div class="input-group">
@@ -609,6 +614,57 @@
                           dayEnd: end
                         }
                       }
-                    </script>{% endblock %}
+                    </script>    <form class="modal multi-step" id="upload-instructions-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title step-1" data-step="1">Step 1</h4>
+            <h4 class="modal-title step-2" data-step="2">Step 2</h4>
+            <h4 class="modal-title step-3" data-step="3">Step 3</h4>
+            <h4 class="modal-title step-4" data-step="4">Step 4</h4>
+          </div>
+          <div class="modal-body step step-1">
+            <p>Sign into the Google account linked to your Android device. Go to <a href="https://takeout.google.com/">takeout.google.com/settings/takeout.</a></p>
+          </div>
+          <div class="modal-body step step-2">
+            <p>Click "Select none."
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/select-none.png')}}" /></p>
+          </div>
+          <div class="modal-body step step-3">
+            <p>Select Location History. Make sure it is set to JSON format.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/select-location.png')}}" />
+            <br>
+            Click next.</p>
+          </div>
+          <div class="modal-body step step-4">
+            <p>Choose the format as follows.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/choose-format.png')}}" />
+            Create archive.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary step step-1" data-step="1" onclick="sendEvent(2)">Continue</button>
+            <button type="button" class="btn btn-primary step step-2" data-step="2" onclick="sendEvent(3)">Continue</button>
+            <button type="button" class="btn btn-primary step step-3" data-step="3" onclick="sendEvent(4)">Continue</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <script src="{{url_for('static', filename='multi-step-modal.js')}}"></script>
                   </body>
+    <script>
+      sendEvent = function(x) {
+          $('#upload-instructions-modal').trigger('next.m.' + x);
+      }
+      // $('#upload-instructions-modal').on('hidden.bs.modal', function () {
+      //   reset();
+      //   updateProgress(1, 2);
+      //   $('#upload-instructions-modal').find('.step-1').show();
+      // })
+    </script>{% endblock %}
+
                 </html>
+
