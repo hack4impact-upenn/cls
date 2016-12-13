@@ -39,11 +39,11 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles/main.css')}}">
 
     <div class="container-fluid">
-      <div class="row">
+      <div id="step-1" class="row">
         <div class="col-md-4" id="upload">
           <div class="row">
             <div class="col-md-12">
-              <h1>Step 1: Upload</h1>
+              <h3>Step 1: Upload</h3>
             </div>
           </div>
           <div class="row">
@@ -78,24 +78,12 @@
                             <div id="uploadstats"></div><br>
                           </div>
                         </div>-->
-          <div class="row">
+          <div id="step-2" class="row">
             <div class="col-md-12">
-              <h1>Step 2: Select Bounding Boxes</h1>
+              <h3>Step 2: Select Bounding Boxes</h3>
             </div>
             <div class="col-md-12">
               <p>Click "New Box" and drag to select an area to process on the map.</p>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <table class="table" id="locationTable">
-                <thead>
-                  <tr>
-                    <td></td>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
             </div>
           </div>
           <div class="row">
@@ -107,7 +95,16 @@
           </div><br>
           <div class="row">
             <div class="col-md-12">
-              <h1>Step 3: Submit</h1>
+              <table class="table" id="locationTable">
+                <thead><tr></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="step-3" class="row">
+            <div class="col-md-12">
+              <h3>Step 3: Submit</h3>
             </div>
           </div>
           <div class="row">
@@ -120,7 +117,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="startDay">Select Start Day of the week:</label>
+                <label for="startDay">Start Day of Week:</label>
                 <select class="form-control custom-select" id="startDay">
                                 <option value="" selected>
                                   Select...
@@ -151,7 +148,7 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label for="endDay">Select End Day of the week:</label>
+                <label for="endDay">End Day of Week:</label>
                 <select class="form-control custom-select" id="endDay">
                                 <option value="" selected>
                                   Select...

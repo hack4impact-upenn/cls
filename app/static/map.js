@@ -57,9 +57,9 @@ function createBox(name) {
     };
 
 
-    $('#locationTable tr:last').after(
+    $('#locationTable thead tr:last').after(
       '<tr id="' + currentBox._leaflet_id + '"><td>' + name +
-      '<\/td><td><button id="goToButton' + currentBox._leaflet_id + '" data-box-id="' + currentBox._leaflet_id + '" class="btn btn-default">Go To Box<\/button>&nbsp;<button class="btn btn-danger deleteBox">Delete<\/button><\/td><\/tr>'
+      '<\/td><td><div><button id="goToButton' + currentBox._leaflet_id + '" data-box-id="' + currentBox._leaflet_id + '" class="btn btn-default">Go To Box<\/button>&nbsp;<button class="btn btn-danger deleteBox">Delete<\/button></div><\/td><\/tr>'
     );
 
     $('#goToButton' + currentBox._leaflet_id).on('click', function (e) {
@@ -76,11 +76,11 @@ function createBox(name) {
     })
 
     $('.deleteBox').on('click', function (e) {
-      var id = this.parentNode.parentNode.id;
+      var id = this.parentNode.parentNode.parentNode.id;
       boxes[id].rectangle.editing.disable();
       boxes[id].rectangle.remove();
       delete boxes[id];
-      this.parentNode.parentNode.remove();
+      this.parentNode.parentNode.parentNode.remove();
     });
 
     currentBox.bindPopup(name).openPopup();
