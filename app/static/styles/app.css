@@ -97,3 +97,8 @@ table.selectable tr:hover {
 .prunecluster-large div span {
     line-height: 34px;
 }
+
+.tutorial-img {
+    width: 100%;
+    padding: 10px 5px;
+}
