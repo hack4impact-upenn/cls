@@ -1,0 +1,80 @@
+@font-face {
+  font-family: HKGroteskRegular;
+  src: url('../fonts/hk-grotesk/HKGrotesk-Regular.otf')
+}
+
+@font-face {
+  font-family: HKGroteskBold;
+  src: url('../fonts/hk-grotesk/HKGrotesk-Bold.otf')
+}
+
+* {
+  font-family: 'HKGroteskRegular', 'Arial'
+}
+
+body {
+  margin: 0px;
+  height: 100vh;
+  z-index: -1
+}
+
+#mapid {
+  height: 100vh
+}
+
+.table>thead>tr>th {
+  border-bottom: 0px
+}
+
+#upload {
+  background-color: #FFF;
+  height: 50vh;
+  z-index: 1000;
+  padding-top: 25px;
+  padding-left: 25px;
+  padding-right: 25px;
+  min-height: 100vh;
+  box-shadow: 5px 5px 10px #000;
+  overflow-y: scroll
+}
+
+#locationTable {
+  margin-bottom: 0px;
+}
+
+#locationTable thead tr td:first-child {
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+#locationTable thead tr td:last-child div {
+  float: right;
+}
+
+#step-1 {
+}
+
+#step-2 {
+  display: none;
+}
+
+#step-3 {
+  display: none;
+}
+
+.form-control {
+  box-shadow: none;
+}
+
+.progress {
+  margin-bottom: 0px;
+}
+
+h3 {
+  font-family: 'HKGroteskBold', 'Arial';
+  font-size: 28px;
+}
+
+p {
+  font-size: 18px
+}
