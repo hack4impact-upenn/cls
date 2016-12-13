@@ -1,0 +1,37 @@
+<style>
+  * {
+    font-family: 'HKGroteskRegular', 'Arial'
+  }
+
+  body {
+    margin: 0px;
+    height: 100vh;
+    z-index: -1
+  }
+
+  #mapid {
+    height: 100vh
+  }
+
+  .table>thead>tr>th {
+    border-bottom: 0px
+  }
+
+  #upload {
+    background-color: #FFF;
+    height: 50vh;
+    z-index: 1000;
+    padding-top: 50px;
+    min-height: 100vh;
+    box-shadow: 5px 5px 10px #000;
+    overflow-y: scroll;
+  }
+
+  h1 {
+    font-family: 'HKGroteskBold', 'Arial'
+  }
+
+  p {
+    font-size: 18px
+  }
+</style>

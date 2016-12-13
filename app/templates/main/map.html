@@ -3,6 +3,7 @@
 
   <head>
     <title>Map Upload</title>
+
   </head>
 
   <body>
@@ -35,43 +36,8 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js">
     </script>
-    <style>
-      * {
-        font-family: 'HKGroteskRegular', 'Arial'
-      }
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles/main.css')}}">
 
-      body {
-        margin: 0px;
-        height: 100vh;
-        z-index: -1
-      }
-
-      #mapid {
-        height: 100vh
-      }
-
-      .table>thead>tr>th {
-        border-bottom: 0px
-      }
-
-      #upload {
-        background-color: #FFF;
-        height: 50vh;
-        z-index: 1000;
-        padding-top: 50px;
-        min-height: 100vh;
-        box-shadow: 5px 5px 10px #000;
-        overflow-y: scroll;
-      }
-
-      h1 {
-        font-family: 'HKGroteskBold', 'Arial'
-      }
-
-      p {
-        font-size: 18px
-      }
-    </style>
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-4" id="upload">
