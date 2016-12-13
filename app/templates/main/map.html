@@ -15,19 +15,19 @@
             </script> <!--<link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>-->
             <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
               <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
-              </script> 
+              </script>
               <script src="{{url_for('static',filename='PruneCluster.js')}}">
-              </script> 
+              </script>
               <script src="{{url_for('static',filename='swal.js')}}">
               </script>
               <link href="{{ url_for('static', filename='styles/app.css') }}" rel="stylesheet">
                 <link href="{{ url_for('static', filename='swal.css') }}" rel="stylesheet">
                   <script src="{{url_for('static',filename='SimpleShape.js')}}">
-                  </script> 
+                  </script>
                   <script src="{{url_for('static',filename='oboe.min.js')}}">
-                  </script> 
+                  </script>
                   <script src="{{url_for('static',filename='Rectangle.js')}}">
-                  </script> 
+                  </script>
                   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js">
                   </script>
                   <style>
@@ -118,6 +118,7 @@
                           </div>
                           <div class="col-md-12">
                             <p>Click "New Box" and drag to select an area to process on the map.</p>
+                            <a href="#bounding-instructions-modal" data-toggle="modal" data-target="#bounding-instructions-modal"><span onclick="sendEvent(1)" class="glyphicon glyphicon-info-sign upload-instructions" aria-hidden="true"></span></a>
                           </div>
                         </div>
                         <div class="row">
@@ -154,7 +155,7 @@
                         <div class="row">
                           <div class="col-md-6">
                             <div class="form-group">
-                              <label for="startDay">Select Start Day of the week:</label> 
+                              <label for="startDay">Select Start Day of the week:</label>
                               <select class="form-control custom-select" id="startDay">
                                 <option value="" selected>
                                   Select...
@@ -185,7 +186,7 @@
                           </div>
                           <div class="col-md-6">
                             <div class="form-group">
-                              <label for="endDay">Select End Day of the week:</label> 
+                              <label for="endDay">Select End Day of the week:</label>
                               <select class="form-control custom-select" id="endDay">
                                 <option value="" selected>
                                   Select...
@@ -285,7 +286,7 @@
 
 
                         $('#locationTable tr:last').after(
-                          '<tr id="' + currentBox._leaflet_id + '"><td>' + name + 
+                          '<tr id="' + currentBox._leaflet_id + '"><td>' + name +
                             '<\/td><td><button id="goToButton' + currentBox._leaflet_id + '" data-box-id="' + currentBox._leaflet_id + '" class="btn btn-default">Go To Box<\/button>&nbsp;<button class="btn btn-danger deleteBox">Delete<\/button><\/td><\/tr>'
                         );
 
@@ -538,7 +539,7 @@
                       $('#submitProcess').on('click', function(e) {
                         var errString = "";
                         $('#submitErrors').remove();
-                        if (!uploadURL) { 
+                        if (!uploadURL) {
                           errString += "No file has been uploaded. Please select a file.";
                         }
                         if (Object.keys(boxes).length <= 0) {
@@ -556,9 +557,9 @@
 
                         if (errString.length > 0) {
                           $('#submitProcess').before("<div id='submitErrors' class='col-md-12'><div class='alert alert-danger'>"+ errString + "<\/div><\/div>");
-                        } else { 
+                        } else {
                         var obj = processData(uploadURL, boxes, $('#email').val(), $('#startDay').val(), $('#endDay').val());
-                        console.log(obj); 
+                        console.log(obj);
                         var csrftoken = $('meta[name=csrf-token]').attr('content')
                         $.post({
                             url: '{{ url_for("main.analyze") }}',
@@ -614,7 +615,8 @@
                           dayEnd: end
                         }
                       }
-                    </script>    <form class="modal multi-step" id="upload-instructions-modal">
+                    </script>
+    <form class="modal multi-step" id="upload-instructions-modal">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -665,6 +667,41 @@
       //   $('#upload-instructions-modal').find('.step-1').show();
       // })
     </script>{% endblock %}
+    <form class="modal multi-step" id="bounding-instructions-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title step-1" data-step="1">Step 1</h4>
+            <h4 class="modal-title step-2" data-step="2">Step 2</h4>
+          </div>
+          <div class="modal-body step step-1">
+            <p>Click and drag the edges of the bounding box.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/bounding-box.gif')}}" /></p>
+          </div>
+          <div class="modal-body step step-2">
+            <p>Name the area covered by the box.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/area-name.png')}}" /></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary step step-1" data-step="1" onclick="sendBEvent(2)">Continue</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <script src="{{url_for('static', filename='multi-step-modal.js')}}"></script>
+                  </body>
+    <script>
+      sendBEvent = function(x) {
+          $('#bounding-instructions-modal').trigger('next.m.' + x);
+      }
+      // $('#upload-instructions-modal').on('hidden.bs.modal', function () {
+      //   reset();
+      //   updateProgress(1, 2);
+      //   $('#upload-instructions-modal').find('.step-1').show();
+      // })
+    </script>{% endblock %}
 
                 </html>
-
