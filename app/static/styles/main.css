@@ -51,6 +51,17 @@ body {
   float: right;
 }
 
+#step-1 {
+}
+
+#step-2 {
+  display: none;
+}
+
+#step-3 {
+  display: none;
+}
+
 .form-control {
   box-shadow: none;
 }

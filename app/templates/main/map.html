@@ -1,200 +1,194 @@
 <!DOCTYPE html>
 <html>
-
-  <head>
-    <title>Map Upload</title>
-
-  </head>
-
-  <body>
-    {% block content %}
-    <meta charset="utf-8">
-    <meta content="{{ csrf_token() }}" name="csrf-token">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js">
-    </script>
-    <link href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" rel="stylesheet">
-    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js">
-    </script>
-    <!--<link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>-->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
-    </script>
-    <script src="{{url_for('static',filename='PruneCluster.js')}}">
-    </script>
-    <script src="{{url_for('static',filename='moment.min.js')}}">
-    </script>
-    <script src="{{url_for('static',filename='swal.js')}}">
-    </script>
-    <link href="{{ url_for('static', filename='styles/app.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='swal.css') }}" rel="stylesheet">
-    <script src="{{url_for('static',filename='SimpleShape.js')}}">
-    </script>
-    <script src="{{url_for('static',filename='oboe.min.js')}}">
-    </script>
-    <script src="{{url_for('static',filename='Rectangle.js')}}">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js">
-    </script>
-    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles/main.css')}}">
-
-    <div class="container-fluid">
-      <div id="step-1" class="row">
-        <div class="col-md-4" id="upload">
-          <div class="row">
-            <div class="col-md-12">
-              <h3>Step 1: Upload</h3>
+   <head>
+      <title>Map Upload</title>
+   </head>
+   <body>
+      {% block content %}
+      <meta charset="utf-8">
+      <meta content="{{ csrf_token() }}" name="csrf-token">
+      <meta content="width=device-width, initial-scale=1.0" name="viewport">
+      <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+      <link href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" rel="stylesheet">
+      <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+      <!--<link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>-->
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <script src="{{url_for('static',filename='PruneCluster.js')}}"></script>
+      <script src="{{url_for('static',filename='moment.min.js')}}"></script>
+      <script src="{{url_for('static',filename='swal.js')}}"></script>
+      <link href="{{ url_for('static', filename='styles/app.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='swal.css') }}" rel="stylesheet">
+      <script src="{{url_for('static',filename='SimpleShape.js')}}"></script>
+      <script src="{{url_for('static',filename='oboe.min.js')}}"></script>
+      <script src="{{url_for('static',filename='Rectangle.js')}}"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles/main.css')}}">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-4" id="upload">
+               <div id="step-1">
+                  <div class="row">
+                     <div class="col-md-12">
+                        <h3>Step 1: Upload</h3>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <p>Please select a valid Google Location Map History file (should be in format of LocationHistory.json)</p>
+                     </div>
+                     <div class="col-md-12">
+                        <div class="input-group">
+                           <label class="input-group-btn"><span class="btn btn-primary">Upload&hellip; <input accept=".json" id="uploadInput" multiple style="display: none;" type="file"></span></label> <input class="form-control" readonly type="text">
+                        </div>
+                     </div>
+                  </div>
+                  <br>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <span style="font-size: 16px">Progress:</span>
+                        <div class="progress">
+                           <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-success" id="done" role="progressbar" style="min-width: 2em">
+                              0%
+                           </div>
+                        </div>
+                        <div id="stats"></div>
+                        <br>
+                     </div>
+                  </div>
+                  <!-- <div class="row">
+                     <div class="col-md-12">
+                       Upload Progress:
+                       <div class="progress">
+                         <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-warning" id="doneupload" role="progressbar" style="min-width: 2em">
+                           0%
+                         </div>
+                       </div>
+                       <div id="uploadstats"></div><br>
+                     </div>
+                     </div> -->
+               </div>
+               <div id="step-2">
+                  <div class="row">
+                     <div class="col-md-12">
+                        <h3>Step 2: Select Bounding Boxes</h3>
+                     </div>
+                     <div class="col-md-12">
+                        <p>Click "New Box" and drag to select an area to process on the map.</p>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <div class="input-group">
+                           <button class="btn btn-primary" id="newBoxButton">New Box</button> &nbsp;&nbsp;&nbsp; <button class="btn btn-danger" id="cancel">Cancel</button>
+                        </div>
+                     </div>
+                  </div>
+                  <br>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <table class="table" id="locationTable">
+                           <thead>
+                              <tr></tr>
+                           </thead>
+                           <tbody></tbody>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div id="step-3">
+                  <div class="row">
+                     <div class="col-md-12">
+                        <h3>Step 3: Submit</h3>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <div class="form-group">
+                           <label for="email">Name your file:</label> <input class="form-control" id="filename" type="text">
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="form-group">
+                           <label for="startDay">Start Day of Week:</label>
+                           <select class="form-control custom-select" id="startDay">
+                              <option value="" selected>
+                                 Select...
+                              </option>
+                              <option value="1">
+                                 Monday 12 AM
+                              </option>
+                              <option value="2">
+                                 Tuesday 12 AM
+                              </option>
+                              <option value="3">
+                                 Wednesday &nbsp;12 AM
+                              </option>
+                              <option value="4">
+                                 Thursday 12 AM
+                              </option>
+                              <option value="5">
+                                 Friday 12 AM
+                              </option>
+                              <option value="6">
+                                 Saturday 12 AM
+                              </option>
+                              <option value="7">
+                                 Sunday 12 AM
+                              </option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="form-group">
+                           <label for="endDay">End Day of Week:</label>
+                           <select class="form-control custom-select" id="endDay">
+                              <option value="" selected>
+                                 Select...
+                              </option>
+                              <option value="1">
+                                 Monday 11:59 PM
+                              </option>
+                              <option value="2">
+                                 Tuesday 11:59 PM
+                              </option>
+                              <option value="3">
+                                 Wednesday 11:59 PM
+                              </option>
+                              <option value="4">
+                                 Thursday 11:59 PM
+                              </option>
+                              <option value="5">
+                                 Friday 11:59 PM
+                              </option>
+                              <option value="6">
+                                 Saturday 11:59 PM
+                              </option>
+                              <option value="7">
+                                 Sunday 11:59 PM
+                              </option>
+                           </select>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-12">
+                        <button class="btn btn-success" id="submitProcess" style="width: 100%">Submit for processing</button>
+                     </div>
+                  </div>
+               </div>
+               <br>
+               <br>
+               <br>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <p>Please select a valid Google Location Map History file (should be in format of LocationHistory.json)</p>
-            </div>
-            <div class="col-md-12">
-              <div class="input-group">
-                <label class="input-group-btn"><span class="btn btn-primary">Upload&hellip; <input accept=".json" id="uploadInput" multiple style="display: none;" type="file"></span></label> <input class="form-control" readonly type="text">
-              </div>
-            </div>
-          </div><br>
-          <div class="row">
-            <div class="col-md-12">
-              Progress:
-              <div class="progress">
-                <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-success" id="done" role="progressbar" style="min-width: 2em">
-                  0%
-                </div>
-              </div>
-              <div id="stats"></div><br>
-            </div>
-          </div>
-          <!--<div class="row">
-                          <div class="col-md-12">
-                            Upload Progress:
-                            <div class="progress">
-                              <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-warning" id="doneupload" role="progressbar" style="min-width: 2em">
-                                0%
-                              </div>
-                            </div>
-                            <div id="uploadstats"></div><br>
-                          </div>
-                        </div>-->
-          <div id="step-2" class="row">
-            <div class="col-md-12">
-              <h3>Step 2: Select Bounding Boxes</h3>
-            </div>
-            <div class="col-md-12">
-              <p>Click "New Box" and drag to select an area to process on the map.</p>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="input-group">
-                <button class="btn btn-primary" id="newBoxButton">New Box</button> &nbsp;&nbsp;&nbsp; <button class="btn btn-danger" id="cancel">Cancel</button>
-              </div>
-            </div>
-          </div><br>
-          <div class="row">
-            <div class="col-md-12">
-              <table class="table" id="locationTable">
-                <thead><tr></tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div id="step-3" class="row">
-            <div class="col-md-12">
-              <h3>Step 3: Submit</h3>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="email">Name your file:</label> <input class="form-control" id="filename" type="text">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="startDay">Start Day of Week:</label>
-                <select class="form-control custom-select" id="startDay">
-                                <option value="" selected>
-                                  Select...
-                                </option>
-                                <option value="1">
-                                  Monday 12 AM
-                                </option>
-                                <option value="2">
-                                  Tuesday 12 AM
-                                </option>
-                                <option value="3">
-                                  Wednesday 12 AM
-                                </option>
-                                <option value="4">
-                                  Thursday 12 AM
-                                </option>
-                                <option value="5">
-                                  Friday 12 AM
-                                </option>
-                                <option value="6">
-                                  Saturday 12 AM
-                                </option>
-                                <option value="7">
-                                  Sunday 12 AM
-                                </option>
-                              </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="endDay">End Day of Week:</label>
-                <select class="form-control custom-select" id="endDay">
-                                <option value="" selected>
-                                  Select...
-                                </option>
-                                <option value="1">
-                                  Monday 11:59 PM
-                                </option>
-                                <option value="2">
-                                  Tuesday 11:59 PM
-                                </option>
-                                <option value="3">
-                                  Wednesday 11:59 PM
-                                </option>
-                                <option value="4">
-                                  Thursday 11:59 PM
-                                </option>
-                                <option value="5">
-                                  Friday 11:59 PM
-                                </option>
-                                <option value="6">
-                                  Saturday 11:59 PM
-                                </option>
-                                <option value="7">
-                                  Sunday 11:59 PM
-                                </option>
-                              </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12">
-              <button class="btn btn-success" id="submitProcess" style="width: 100%">Submit for processing</button>
-            </div>
-          </div><br>
-          <br>
-          <br>
-        </div>
-        <div class="col-md-8" id="mapid"></div>
+            <div class="col-md-8" id="mapid"></div>
+         </div>
       </div>
-
       <script src="{{url_for('static',filename='map.js')}}"></script>
       <script src="{{url_for('static',filename='upload.js')}}"></script>
       <script src="{{url_for('static',filename='csv.js')}}"></script>
-
       {% endblock %}
-  </body>
-
+   </body>
 </html>
