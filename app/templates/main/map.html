@@ -67,7 +67,7 @@
                      </div>
                      </div> -->
                </div>
-               <div id="step-2">
+               <div id="step-2" style="display: block">
                   <div class="row">
                      <div class="col-md-12">
                         <h3>Step 2: Select Bounding Boxes</h3>
@@ -98,17 +98,6 @@
                      </div>
                   </div>
                   <br>
-                  <div class="row">
-                     <div class="col-md-12">
-                        <table class="table" id="locationTable">
-                           <thead>
-                              <tr></tr>
-                           </thead>
-                           <tbody></tbody>
-                        </table>
-                     </div>
-                  </div>
-               </div>
                <div id="step-3">
                   <div class="row">
                      <div class="col-md-12">
@@ -242,16 +231,10 @@
       </div>
     </form>
       
-    <script src="{{url_for('static', filename='multi-step-modal.js')}}"></script>
     <script>
       sendEvent = function(x) {
           $('#upload-instructions-modal').trigger('next.m.' + x);
       }
-      // $('#upload-instructions-modal').on('hidden.bs.modal', function () {
-      //   reset();
-      //   updateProgress(1, 2);
-      //   $('#upload-instructions-modal').find('.step-1').show();
-      // })
     </script>
     <form class="modal multi-step" id="bounding-instructions-modal">
       <div class="modal-dialog">
@@ -277,16 +260,11 @@
         </div>
       </div>
     </form>
-    <script src="{{url_for('static', filename='multi-step-modal.js')}}"></script>
-                  </body>
     <script>
       sendBEvent = function(x) {
           $('#bounding-instructions-modal').trigger('next.m.' + x);
       }
-      // $('#upload-instructions-modal').on('hidden.bs.modal', function () {
-      //   reset();
-      //   updateProgress(1, 2);
-      //   $('#upload-instructions-modal').find('.step-1').show();
-      // })
     </script>
+    <script src="{{url_for('static', filename='multi-step-modal.js')}}"></script>
+    </body>
 </html>
