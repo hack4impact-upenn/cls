@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Map Upload</title>
+  </head>
+  <body>
+    {% block content %}
+    <meta charset="utf-8">
+      <meta content="{{ csrf_token() }}" name="csrf-token">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+          <script src="https://code.jquery.com/jquery-3.1.1.min.js">
+          </script>
+          <link href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" rel="stylesheet">
+            <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js">
+            </script> <!--<link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/hk-grotesk" type="text/css"/>-->
+            <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+              <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
+              </script> 
+              <script src="{{url_for('static',filename='PruneCluster.js')}}">
+              </script> 
+              <script src="{{url_for('static',filename='swal.js')}}">
+              </script>
+              <link href="{{ url_for('static', filename='styles/app.css') }}" rel="stylesheet">
+                <link href="{{ url_for('static', filename='swal.css') }}" rel="stylesheet">
+                  <script src="{{url_for('static',filename='SimpleShape.js')}}">
+                  </script> 
+                  <script src="{{url_for('static',filename='oboe.min.js')}}">
+                  </script> 
+                  <script src="{{url_for('static',filename='Rectangle.js')}}">
+                  </script> 
+                  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js">
+                  </script>
+                  <style>
+                    * {
+                      font-family: 'HKGroteskRegular', 'Arial'
+                    }
+
+                    body {
+                      margin: 0px;
+                      height: 100vh;
+                      z-index: -1
+                    }
+
+                    #mapid {
+                      height: 100vh
+                    }
+
+                    .table>thead>tr>th {
+                      border-bottom: 0px
+                    }
+
+                    #upload {
+                      background-color: #FFF;
+                      height: 50vh;
+                      z-index: 1000;
+                      padding-top: 50px;
+                      min-height: 100vh;
+                      box-shadow: 5px 5px 10px #000;
+                      overflow-y: scroll;
+                    }
+
+                    h1 {
+                      font-family: 'HKGroteskBold', 'Arial'
+                    }
+
+                    p {
+                      font-size: 18px
+                    }
+            .tutorial-img {
+            width:100%;
+          padding:10px 5px;
+        }
+                  </style>
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col-md-4" id="upload">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <h1>Step 1: Upload</h1>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <p>Please select a valid Google Location Map History file (should be in format of LocationHistory.json)</p>
+              <a href="#upload-instructions-modal" data-toggle="modal" data-target="#upload-instructions-modal"><span onclick="sendEvent(1)" class="glyphicon glyphicon-info-sign upload-instructions" aria-hidden="true"></span></a>
+                          </div>
+                          <div class="col-md-12">
+                            <div class="input-group">
+                              <label class="input-group-btn"><span class="btn btn-primary">Upload&hellip; <input accept=".json" id="uploadInput" multiple style="display: none;" type="file"></span></label> <input class="form-control" readonly type="text">
+                            </div>
+                          </div>
+                        </div><br>
+                        <div class="row">
+                          <div class="col-md-12">
+                            Progress:
+                            <div class="progress">
+                              <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-success" id="done" role="progressbar" style="min-width: 2em">
+                                0%
+                              </div>
+                            </div>
+                            <div id="stats"></div><br>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            Upload Progress:
+                            <div class="progress">
+                              <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-warning" id="doneupload" role="progressbar" style="min-width: 2em">
+                                0%
+                              </div>
+                            </div>
+                            <div id="uploadstats"></div><br>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <h1>Step 2: Select Bounding Boxes</h1>
+                          </div>
+                          <div class="col-md-12">
+                            <p>Click "New Box" and drag to select an area to process on the map.</p>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <table class="table" id="locationTable">
+                              <thead>
+                                <tr>
+                                  <td></td>
+                                </tr>
+                              </thead>
+                              <tbody></tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="input-group">
+                              <button class="btn btn-primary" id="newBoxButton">New Box</button> &nbsp;&nbsp;&nbsp; <button class="btn btn-danger" id="cancel">Cancel</button>
+                            </div>
+                          </div>
+                        </div><br>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <h1>Step 3: Submit</h1>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label for="email">Email to Send To:</label> <input class="form-control" id="email" type="text">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="startDay">Select Start Day of the week:</label> 
+                              <select class="form-control custom-select" id="startDay">
+                                <option value="" selected>
+                                  Select...
+                                </option>
+                                <option value="0">
+                                  Monday 12 AM
+                                </option>
+                                <option value="1">
+                                  Tuesday 12 AM
+                                </option>
+                                <option value="2">
+                                  Wednesday 12 AM
+                                </option>
+                                <option value="3">
+                                  Thursday 12 AM
+                                </option>
+                                <option value="4">
+                                  Friday 12 AM
+                                </option>
+                                <option value="5">
+                                  Saturday 12 AM
+                                </option>
+                                <option value="6">
+                                  Sunday 12 AM
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="endDay">Select End Day of the week:</label> 
+                              <select class="form-control custom-select" id="endDay">
+                                <option value="" selected>
+                                  Select...
+                                </option>
+                                <option value="0">
+                                  Monday 11:59 PM
+                                </option>
+                                <option value="1">
+                                  Tuesday 11:59 PM
+                                </option>
+                                <option value="2">
+                                  Wednesday 11:59 PM
+                                </option>
+                                <option value="3">
+                                  Thursday 11:59 PM
+                                </option>
+                                <option value="4">
+                                  Friday 11:59 PM
+                                </option>
+                                <option value="5">
+                                  Saturday 11:59 PM
+                                </option>
+                                <option value="6">
+                                  Sunday 11:59 PM
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-md-12">
+                            <button class="btn btn-success" id="submitProcess" style="width: 100%">Submit for processing</button>
+                          </div>
+                        </div><br>
+                        <br>
+                        <br>
+                      </div>
+                      <div class="col-md-8" id="mapid"></div>
+                    </div>
+                    <script>
+
+                    // initial state
+                    var mymap = L.map('mapid', {
+                        scrollWheelZoom: false,
+                        zoomControl: false
+                    }).setView([39.9526, -75.163], 3);
+
+                    L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWJoaXN1cmk5NyIsImEiOiJjaXc0MHcyZGkwMndmMnRvMHplM3c4cmV0In0.NIVRBOjWLn8rVRR9EgDQRw', {
+                        maxZoom: 18,
+                        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap<\/a> contributors, ' +
+                          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA<\/a>, ' +
+                          'Imagery © <a href="http://mapbox.com">Mapbox<\/a>',
+                    }).addTo(mymap);
+                    L.control.zoom({
+                        position: 'bottomright'
+                    }).addTo(mymap);
+                    $("#cancel").prop('disabled', true);
+                    var newBoxMode = false;
+                    var bounds = [];
+                    var boxes = {};
+                    var currentBox;
+                    var clicking = false;
+                    var dragStart, dragEnd;
+                    var uploadURL;
+
+
+                    function mousedownMap(e) {
+                      if (newBoxMode) {
+                        clicking = true;
+                        bounds[0] = e.latlng;
+                        bounds[1] = e.latlng;
+                        currentBox = L.rectangle(bounds, {
+                            color: 'blue',
+                            weight: 1
+                        });
+                      }
+                    }
+
+                    function mousemoveMap(e) {
+                      if (newBoxMode && clicking) {
+                        bounds[1] = e.latlng;
+                        currentBox.setBounds(bounds);
+                        currentBox.addTo(mymap);
+                      }
+                    }
+
+
+
+                    function createBox(name) {
+                      if (name) {
+                        boxes[currentBox._leaflet_id] = {
+                          'name': name,
+                          'rectangle': currentBox,
+                          'zoomLevel': mymap.getZoom()
+                        };
+
+
+                        $('#locationTable tr:last').after(
+                          '<tr id="' + currentBox._leaflet_id + '"><td>' + name + 
+                            '<\/td><td><button id="goToButton' + currentBox._leaflet_id + '" data-box-id="' + currentBox._leaflet_id + '" class="btn btn-default">Go To Box<\/button>&nbsp;<button class="btn btn-danger deleteBox">Delete<\/button><\/td><\/tr>'
+                        );
+
+                        $('#goToButton' + currentBox._leaflet_id).on('click', function(e) {
+                          var obj = boxes[$(this).data('boxId')]
+                          console.log(obj);
+                          var bounds = obj.rectangle._bounds;
+                          var neLat = bounds._northEast.lat
+                          var neLon = bounds._northEast.lng
+                          var swLat = bounds._southWest.lat
+                          var swLon = bounds._southWest.lng
+                          var lat = swLat + ((neLat - swLat)/2);
+                          var long = swLon - ((neLon - swLon)/2);
+                          mymap.setView(L.latLng(lat, long), obj.zoomLevel);
+                        })
+
+                        $('.deleteBox').on('click', function (e) {
+                          var id = this.parentNode.parentNode.id;
+                          boxes[id].rectangle.editing.disable();
+                          boxes[id].rectangle.remove();
+                          delete boxes[id];
+                          this.parentNode.parentNode.remove();
+                        });
+
+                        currentBox.bindPopup(name).openPopup();
+                        currentBox.editing.enable();
+                      } else {
+                        currentBox.remove();
+                      }
+                      currentBox = null;
+                    }
+                    function toggleAllBoxMarkers(e) {
+                      var boxKeys = Object.keys(boxes);
+                      for (var i = 0; i < boxKeys.length; i++) {
+                        toggleBoxMarker(boxes[boxKeys[i]], i);
+                      }
+                    }
+
+                    function toggleBoxMarker(box, i) {
+                      var rect = box.rectangle;
+                      var zoom = box.zoomLevel;
+                      var boxPane = rect.getPane().firstChild.firstChild.childNodes[i];
+
+                      var w = boxPane.getBoundingClientRect().width;
+                      var h = boxPane.getBoundingClientRect().height;
+
+                      if ((w > 40 && h > 40) || mymap.getZoom() >= box.zoomLevel) {
+                        rect.editing.enable();
+                      } else {
+                        rect.editing.disable();
+                      }
+                    }
+
+
+                    function mouseupMap(e) {
+                      if (newBoxMode && currentBox) {
+                        bounds[1] = e.latlng;
+                        currentBox.setBounds(bounds);
+                        currentBox.addTo(mymap);
+                        boxPane = currentBox.getPane();
+
+                        bootbox.prompt('Name of location', createBox);
+
+                        mymap.dragging.enable();
+                        newBoxMode = false;
+                        clicking = false;
+                        $("#cancel").prop('disabled', true);
+                        $("#newBoxButton").prop('disabled', false);
+                      }
+                    }
+
+                    mymap.on('mousedown', mousedownMap);
+                    mymap.on('mousemove', mousemoveMap);
+                    mymap.on('mouseup', mouseupMap);
+                    mymap.on('zoom', toggleAllBoxMarkers)
+
+                    $('#newBoxButton').on('click', function (e) {
+                      newBoxMode = true;
+                      $('#newBoxButton').prop('disabled', true);
+                      $('#cancel').prop('disabled', false);
+                      mymap.dragging.disable();
+                    })
+                    $('#cancel').on('click', function (e) {
+                      newBoxMode = false;
+                      $("#newBoxButton").prop('disabled', false);
+                      $("#cancel").prop('disabled', true);
+                      mymap.dragging.enable();
+                    })
+                    var lv = new PruneClusterForLeaflet(160);
+                    mymap.addLayer(lv);
+                    // file input
+
+                    $(document).on('change', ':file', function () {
+                      var input = $(this),
+                      numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                      label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+                      input.trigger('fileselect', [numFiles, label]);
+                    });
+
+                    var SCALAR_E7 = 0.0000001;
+                    var os = oboe()
+                    os.node('locations.*', function (location) {
+                      var marker = new PruneCluster.Marker(location.latitudeE7 * SCALAR_E7,
+                        location.longitudeE7 * SCALAR_E7);
+                      lv.RegisterMarker(marker);
+                      return oboe.drop;
+                    }).done('done');
+                    $(':file').on('fileselect', function (event, numFiles, label) {
+                      var input = $(this).parents('.input-group').find(':text'),
+                      log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+                      if (input.length) {
+                        input.val(log);
+                        var fileInput = $('#uploadInput').get(0);
+                        var file = fileInput.files[0];
+                        count = 0;
+                        parseFile(file);
+                        initUpload(file);
+                      } else {
+                        if (log) alert(log);
+                      }
+                    });
+
+                    function uploadFile(file, s3Data, url, urlUpload){
+                      // basic validation
+                      var fileType = url.substring(url.lastIndexOf('.') + 1);
+                      if (fileType != "json") {
+                        alert('File needs to be a json file.');
+                        return;
+                      }
+                      var startTime = Date.now();
+                      var endTime = Date.now();
+                      var xhr = new XMLHttpRequest();
+                      xhr.upload.addEventListener("progress", updateProgress);
+                      xhr.open('POST', urlUpload);
+                      xhr.setRequestHeader('x-amz-acl', 'public-read');
+
+                      var postData = new FormData();
+                      for(key in s3Data.fields){
+                        postData.append(key, s3Data.fields[key]);
+                      }
+                      postData.append('file', file);
+                      console.log(file);
+                      function updateProgress (e) {
+                        if (e.lengthComputable) {
+                          var percentComplete = ((100*e.loaded)/e.total).toFixed(2);
+                          var percentCompleteShort = ((100*e.loaded)/e.total).toFixed(0);
+                          $("#doneupload").css('width', percentCompleteShort + '%').attr('aria-valuenow', percentCompleteShort).text(percentComplete+'%')
+                        }
+                      }
+                      xhr.onreadystatechange = function()  {
+                        if(xhr.readyState === 4){
+                          if(xhr.status === 200 || xhr.status === 204) {
+                            endTime = Date.now();
+                            $("#uploadstats").html("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
+                              "s for file size " + (file.size / (1024 * 1024)).toFixed(2) + " MB. File download <a href='" + url + "' target='_blank'>here<\/a> for 24 hrs.")
+                            uploadURL = url
+                          }
+                          else{
+                            $("#uploadstats").html("Could not upload file, please refresh page.");
+                          }
+                        }
+                      };
+                      xhr.send(postData);
+                    }
+
+                    /*
+                     Function to get the temporary signed request from the Python app.
+                     If request successful, continue to upload the file using this signed
+                     request.
+                     */
+                     function getSignedRequest(file){
+                       var xhr = new XMLHttpRequest();
+                       xhr.open('GET', '/sign-s3?file-name=' + file.name + '&file-type=' + file.type);
+                       xhr.onreadystatechange = function() {
+                         if(xhr.readyState === 4){
+                           if(xhr.status === 200){
+                             var response = JSON.parse(xhr.responseText);
+                             console.log("response form json dumps: ", response);
+                             uploadFile(file, response.data, response.url, response.url_upload);
+                           }
+                           else{
+                             alert('Could not get signed URL.');
+                           }
+                         }
+                       };
+                       xhr.send();
+                     }
+
+                     /*
+                      Function called when file input updated. If there is a file selected, then
+                      start upload procedure by asking for a signed request from the app.
+                      */
+                      function initUpload(file){
+                        if(!file){
+                          return alert('No file selected.');
+                        }
+                        getSignedRequest(file);
+                      }
+
+                      function parseFile(file) {
+                        var fileSize = file.size;
+                        var chunkSize = 512 * 1024; // bytes
+                        var offset = 0;
+                        var self = this; // we need a reference to the current object
+                        var chunkReaderBlock = null;
+                        var startTime = Date.now();
+                        var endTime = Date.now();
+                        var readEventHandler = function (evt) {
+                          if (evt.target.error == null) {
+                            offset += evt.target.result.length;
+                            var progress = (100 * offset / fileSize).toFixed(2);
+                            var trimmed = (100 * offset / fileSize).toFixed(0);
+                            $("#done").css('width', trimmed + '%').attr('aria-valuenow', trimmed).text(progress+'%')
+                            console.log(trimmed);
+                            var chunk = evt.target.result;
+                            os.emit('data', chunk); // callback for handling read chunk
+                          } else {
+                            console.log("Read error: " + evt.target.error);
+                            return;
+                          }
+                          if (offset >= fileSize) {
+                            console.log("Done reading file");
+                            endTime = Date.now();
+                            $("#stats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
+                              "s for file size " + (fileSize / (1024 * 1024)).toFixed(2) + " MB")
+                            lv.ProcessView()
+                            return;
+                          }
+
+                          // of to the next chunk
+                          chunkReaderBlock(offset, chunkSize, file);
+                        }
+
+                        chunkReaderBlock = function (_offset, length, _file) {
+                          var r = new FileReader();
+                          var blob = _file.slice(_offset, length + _offset);
+                          r.onload = readEventHandler;
+                          r.readAsText(blob);
+                        }
+
+                        // now let's start the read with the first block
+                        chunkReaderBlock(offset, chunkSize, file);
+                      }
+                      function isValidEmailAddress(emailAddress) {
+                        var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+                        return pattern.test(emailAddress);
+                      };
+
+                      $('#submitProcess').on('click', function(e) {
+                        var errString = "";
+                        $('#submitErrors').remove();
+                        if (!uploadURL) { 
+                          errString += "No file has been uploaded. Please select a file.";
+                        }
+                        if (Object.keys(boxes).length <= 0) {
+                          errString += " Please select at least one bounding box."
+                        }
+                        if (!isValidEmailAddress($('#email').val())) {
+                          errString += " Please a valid email."
+                        }
+                        if($("#startDay").val() === "") {
+                          errString += " Please select a valid start day"
+                        }
+                        if($("#endDay").val() === "") {
+                          errString += " Please select a valid end day."
+                        }
+
+                        if (errString.length > 0) {
+                          $('#submitProcess').before("<div id='submitErrors' class='col-md-12'><div class='alert alert-danger'>"+ errString + "<\/div><\/div>");
+                        } else { 
+                        var obj = processData(uploadURL, boxes, $('#email').val(), $('#startDay').val(), $('#endDay').val());
+                        console.log(obj); 
+                        var csrftoken = $('meta[name=csrf-token]').attr('content')
+                        $.post({
+                            url: '{{ url_for("main.analyze") }}',
+                            data: {json: JSON.stringify(obj)},
+                            dataType: "JSON",
+                            success: function(res) {
+                              swal({
+                                  title: "Success!",
+                                  text: "Your file is being processed and a CSV summary will be sent to {{ current_user.email }}",
+                                  type: "success",
+                                  showCancelButton: false,
+                                  confirmButtonText: "Clear & Reload Page",
+                              },
+                              function(isConfirm){
+                                if (isConfirm) {
+                                  location.reload();
+                                }
+                              });
+                            },
+                            error: function(err) {
+                              swal({ title: "There has been an error!", text: "We have been notified of it and will address it shortly", type:"error"})
+                            }
+                        });
+                        }
+                      });
+
+                      function processData(uploadURL, boxes, email, start, end) {
+                        var url = uploadURL;
+                        var boxKeys = Object.keys(boxes);
+                        var resBoxArray = [];
+                        for(var i = 0; i < boxKeys.length; i++) {
+                          var parseObj = boxes[boxKeys[i]];
+                          var bounds = parseObj.rectangle._bounds;
+                          var ne = bounds._northEast;
+                          var sw = bounds._southWest;
+                          var neLat = ne.lat;
+                          var neLng = ne.lng;
+                          var swLat = sw.lat;
+                          var swLng = sw.lng;
+                          resBoxArray.push( {
+                              name: parseObj.name,
+                              neLat: neLat,
+                              neLng: neLng,
+                              swLat: swLat,
+                              swLng: swLng
+                          });
+                        }
+                        return {
+                          url: url,
+                          boxes: resBoxArray,
+                          email: email,
+                          dayStart: start,
+                          dayEnd: end
+                        }
+                      }
+                    </script>    <form class="modal multi-step" id="upload-instructions-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title step-1" data-step="1">Step 1</h4>
+            <h4 class="modal-title step-2" data-step="2">Step 2</h4>
+            <h4 class="modal-title step-3" data-step="3">Step 3</h4>
+            <h4 class="modal-title step-4" data-step="4">Step 4</h4>
+          </div>
+          <div class="modal-body step step-1">
+            <p>Sign into the Google account linked to your Android device. Go to <a href="https://takeout.google.com/">takeout.google.com/settings/takeout.</a></p>
+          </div>
+          <div class="modal-body step step-2">
+            <p>Click "Select none."
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/select-none.png')}}" /></p>
+          </div>
+          <div class="modal-body step step-3">
+            <p>Select Location History. Make sure it is set to JSON format.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/select-location.png')}}" />
+            <br>
+            Click next.</p>
+          </div>
+          <div class="modal-body step step-4">
+            <p>Choose the format as follows.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/choose-format.png')}}" />
+            Create archive.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary step step-1" data-step="1" onclick="sendEvent(2)">Continue</button>
+            <button type="button" class="btn btn-primary step step-2" data-step="2" onclick="sendEvent(3)">Continue</button>
+            <button type="button" class="btn btn-primary step step-3" data-step="3" onclick="sendEvent(4)">Continue</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <script src="{{url_for('static', filename='multi-step-modal.js')}}"></script>
+                  </body>
+    <script>
+      sendEvent = function(x) {
+          $('#upload-instructions-modal').trigger('next.m.' + x);
+      }
+      // $('#upload-instructions-modal').on('hidden.bs.modal', function () {
+      //   reset();
+      //   updateProgress(1, 2);
+      //   $('#upload-instructions-modal').find('.step-1').show();
+      // })
+    </script>{% endblock %}
+
+                </html>
+
