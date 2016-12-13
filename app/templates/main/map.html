@@ -73,13 +73,27 @@
                         <h3>Step 2: Select Bounding Boxes</h3>
                      </div>
                      <div class="col-md-12">
-                        <p>Click "New Box" and drag to select an area to process on the map.</p>
+                        <p>Click "New Box" and drag to select an area to process on the map. 
+                          <a href="#bounding-instructions-modal" data-toggle="modal" data-target="#bounding-instructions-modal"><span onclick="sendEvent(1)" class="glyphicon glyphicon-info-sign upload-instructions" aria-hidden="true"></span></a></p>
                      </div>
                   </div>
                   <div class="row">
                      <div class="col-md-12">
                         <div class="input-group">
                            <button class="btn btn-primary" id="newBoxButton">New Box</button> &nbsp;&nbsp;&nbsp; <button class="btn btn-danger" id="cancel">Cancel</button>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <table class="table" id="locationTable">
+                              <thead>
+                                <tr>
+                                  <td></td>
+                                </tr>
+                              </thead>
+                              <tbody></tbody>
+                            </table>
+                          </div>
                         </div>
                      </div>
                   </div>
@@ -239,4 +253,40 @@
       //   $('#upload-instructions-modal').find('.step-1').show();
       // })
     </script>
-  </body>
+    <form class="modal multi-step" id="bounding-instructions-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title step-1" data-step="1">Step 1</h4>
+            <h4 class="modal-title step-2" data-step="2">Step 2</h4>
+          </div>
+          <div class="modal-body step step-1">
+            <p>Click and drag the edges of the bounding box.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/bounding-box.gif')}}" /></p>
+          </div>
+          <div class="modal-body step step-2">
+            <p>Name the area covered by the box.
+            <br>
+            <img class="tutorial-img" src="{{url_for('static', filename='images/takeout-screenshots/area-name.png')}}" /></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary step step-1" data-step="1" onclick="sendBEvent(2)">Continue</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <script src="{{url_for('static', filename='multi-step-modal.js')}}"></script>
+                  </body>
+    <script>
+      sendBEvent = function(x) {
+          $('#bounding-instructions-modal').trigger('next.m.' + x);
+      }
+      // $('#upload-instructions-modal').on('hidden.bs.modal', function () {
+      //   reset();
+      //   updateProgress(1, 2);
+      //   $('#upload-instructions-modal').find('.step-1').show();
+      // })
+    </script>
+</html>
