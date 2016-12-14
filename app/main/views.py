@@ -1,7 +1,4 @@
-from flask import flash, redirect, render_template, request, url_for, jsonify
-from flask.ext.login import (current_user, login_required, login_user,
-                             logout_user)
-from flask.ext.rq import get_queue
+from flask import render_template, request, url_for
 import time
 import os, json, boto3
 from . import main

@@ -7,6 +7,5 @@ dependencies:
 test:
   override:
     - find . -not -path '*/.eggs/*' -name '*.py' | xargs flake8
-    - python manage.py test
     - python manage.py format
     - if [[ $(git --no-pager diff) ]]; then exit 1 ; fi
