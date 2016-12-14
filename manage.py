@@ -10,7 +10,6 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User
 
 if os.path.exists('.env'):
     print('Importing environment from .env file')
@@ -76,23 +75,6 @@ def setup_dev():
 def setup_prod():
     """Runs the set-up needed for production."""
     setup_general()
-
-
-def setup_general():
-    """Runs the set-up needed for both local development and production."""
-    Role.insert_roles()
-    admin_query = Role.query.filter_by(name='Administrator')
-    if admin_query.first() is not None:
-        if User.query.filter_by(email=Config.ADMIN_EMAIL).first() is None:
-            user = User(
-                first_name='Admin',
-                last_name='Account',
-                password=Config.ADMIN_PASSWORD,
-                confirmed=True,
-                email=Config.ADMIN_EMAIL)
-            db.session.add(user)
-            db.session.commit()
-            print 'Added administrator {}'.format(user.full_name())
 
 
 @manager.command
