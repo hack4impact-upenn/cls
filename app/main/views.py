@@ -6,6 +6,7 @@ import time
 import os, json, boto3
 from . import main
 from app import csrf
+import hashlib
 
 @main.route('/')
 def index():
@@ -20,7 +21,7 @@ def sign_s3():
   # Load required data from the request
   file_type = request.args.get('file-type')
   pre_file_name = request.args.get('file-name') 
-  file_name = ''.join(pre_file_name) + str(time.time()).replace('.','-') + '.' + ''.join(file_type)
+  file_name = ''.join(hashlib.sha224(pre_file_name).hexdigest()) + str(time.time()).replace('.','') + '.' + ''.join(file_type)
 
   # Initialise the S3 client
   s3 = boto3.client('s3', 'us-west-2')
