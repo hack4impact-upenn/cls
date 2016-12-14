@@ -18,11 +18,6 @@ db = SQLAlchemy()
 csrf = CsrfProtect()
 compress = Compress()
 # Set up Flask-Login
-login_manager = LoginManager()
-# TODO: Ideally this should be strong, but that led to bugs. Once this is
-# fixed, switch protection mode back to 'strong'
-login_manager.session_protection = 'basic'
-login_manager.login_view = 'account.login'
 
 
 def create_app(config_name):
@@ -33,7 +28,6 @@ def create_app(config_name):
     # Set up extensions
     mail.init_app(app)
     db.init_app(app)
-    login_manager.init_app(app)
     csrf.init_app(app)
     compress.init_app(app)
     RQ(app)
@@ -62,11 +56,5 @@ def create_app(config_name):
     # Create app blueprints
     from main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-
-    from account import account as account_blueprint
-    app.register_blueprint(account_blueprint, url_prefix='/account')
-
-    from admin import admin as admin_blueprint
-    app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
     return app
