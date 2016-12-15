@@ -129,6 +129,7 @@ function mouseupMap(e) {
     mymap.dragging.enable();
     newBoxMode = false;
     clicking = false;
+    $('.notif').fadeOut(500);
     $("#cancel").prop('disabled', true);
     $("#newBoxButton").prop('disabled', false);
   }
@@ -143,11 +144,13 @@ $('#newBoxButton').on('click', function (e) {
   newBoxMode = true;
   $('#newBoxButton').prop('disabled', true);
   $('#cancel').prop('disabled', false);
+  $('.notif').fadeIn(500);
   mymap.dragging.disable();
 })
 $('#cancel').on('click', function (e) {
   newBoxMode = false;
   $("#newBoxButton").prop('disabled', false);
   $("#cancel").prop('disabled', true);
+  $('.notif').fadeOut(500);
   mymap.dragging.enable();
 })

@@ -23,7 +23,10 @@ body {
 }
 
 #mapid {
-  height: 100vh
+  height: 100vh;
+  position: absolute;
+  top: 0px;
+  width: 100%;
 }
 
 .table>thead>tr>th {
@@ -40,6 +43,23 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: scroll
+}
+
+.notif {
+  position: absolute;
+  top: 0;
+  text-align: center;
+  width: 100%;
+  padding-top: 20px;
+  z-index: 1000;
+  display: none;
+}
+
+#instruction {
+  font-size: 20px;
+  background-color: rgba(255,255,255, 0.7);
+  color: #000;
+  border: none;
 }
 
 #locationTable {
@@ -59,7 +79,7 @@ body {
 }
 
 #step-2 {
-   display: none; 
+   /*display: none; */
 }
 
 #step-3 {
