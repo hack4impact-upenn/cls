@@ -18,6 +18,10 @@ body {
   z-index: -1
 }
 
+.btn {
+  border-radius: 20px;
+}
+
 #mapid {
   height: 100vh
 }
@@ -34,7 +38,7 @@ body {
   padding-left: 25px;
   padding-right: 25px;
   min-height: 100vh;
-  box-shadow: 5px 5px 10px #000;
+  overflow-x: hidden;
   overflow-y: scroll
 }
 
@@ -55,15 +59,25 @@ body {
 }
 
 #step-2 {
-  display: none;
+   display: none; 
 }
 
 #step-3 {
-  display: none;
+  display: none; 
 }
 
 .form-control {
   box-shadow: none;
+  border-radius: 20px;
+}
+
+.form-control[readonly] {
+  background-color: #FFF;
+  border-left: 0px;
+}
+
+.bootstrap-select {
+  width: 100% !important;
 }
 
 .progress {
