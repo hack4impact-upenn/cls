@@ -201,33 +201,36 @@
               oboeInstance.emit('done');
               console.log("Done reading file");
               endTime = Date.now();
+              var csvContent = "";
+              csv.forEach(function (infoArray, index) {
+                dataString = infoArray.join(",");
+                csvContent += index < csv.length ? dataString + "\n" : dataString;
+              });
+              var encodedUri = "data:text/csv;charset=utf8," + encodeURIComponent(csvContent);
+              var link = document.createElement("a");
+              link.setAttribute("href", encodedUri);
+              link.setAttribute("download", "" + $("#filename").val() + ".csv");
+              document.body.appendChild(link);
               swal({
                 title: "Your file has been created",
-                text: '<div id="swalupload" Upload progress: <br> <div class="progress"><div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="progress-bar progress-bar-success" id="doneupload" role="progressbar" style="min-width: 2em">0%</div></div>',
                 type: "success",
-                html: 'true',
-                confirmButtonText: "Clear page and reload",
+                html: true,
+                showCancelButton: true,
+                closeOnConfirm: false,
+                cancelButtonText: "Clear page and Reload",
+                confirmButtonText: "Download CSV"
               },
               function(isConfirm){
                 if (isConfirm) {
+                  link.click()
+                }
+                if (!isConfirm) {
                   location.reload()
                 } 
               });
               // $("#stats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
               //   "s for file size " + (fileSize / (1024 * 1024)).toFixed(2) + " MB")
               // lv.ProcessView()
-              var csvContent = "";
-              csv.forEach(function (infoArray, index) {
-                dataString = infoArray.join(",");
-                csvContent += index < csv.length ? dataString + "\n" : dataString;
-              });
-              var encodedUri = "data::application/csv;charset=utf8" + encodeURIComponent(csvContent);
-              initUpload(csvContent, $("#filename").val(), 'csv');
-              var link = document.createElement("a");
-              link.setAttribute("href", encodedUri);
-              link.setAttribute("download", "" + $("#filename").val() + ".csv");
-              document.body.appendChild(link);
-              link.click()
               return;
             }
 
