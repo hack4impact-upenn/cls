@@ -124,8 +124,8 @@ function mouseupMap(e) {
     currentBox.addTo(mymap);
     boxPane = currentBox.getPane();
 
-    bootbox.prompt('Name of location', createBox);
-
+    bootbox.prompt('Give this location a name', createBox);
+    $('.bootbox-input').attr('placeholder', 'e.g. Daily work location');
     mymap.dragging.enable();
     newBoxMode = false;
     clicking = false;

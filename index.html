@@ -104,69 +104,35 @@
                   <div class="row">
                      <div class="col-md-12">
                         <div class="form-group">
-                           <label for="email">Name your file:</label> <input class="form-control" id="filename" type="text">
+                           <label for="email">Name your file:</label> <input class="form-control" id="filename" type="text" value="Work Location History">
                         </div>
                      </div>
                   </div>
                   <div class="row">
-                     <div class="col-md-6">
+                     <div class="col-md-12">
                         <div class="form-group">
                            <label for="startDay">Start Day of Week:</label>
                            <select class="selectpicker" id="startDay">
-                              <option value="" selected>
-                                 Select...
-                              </option>
                               <option value="1">
-                                 Monday 12 AM
+                                 Monday 
                               </option>
                               <option value="2">
-                                 Tuesday 12 AM
+                                 Tuesday 
                               </option>
                               <option value="3">
-                                 Wednesday 12 AM
+                                 Wednesday 
                               </option>
                               <option value="4">
-                                 Thursday 12 AM
+                                 Thursday 
                               </option>
                               <option value="5">
-                                 Friday 12 AM
+                                 Friday 
                               </option>
                               <option value="6">
-                                 Saturday 12 AM
+                                 Saturday 
                               </option>
-                              <option value="7">
-                                 Sunday 12 AM
-                              </option>
-                           </select>
-                        </div>
-                     </div>
-                     <div class="col-md-6">
-                        <div class="form-group">
-                           <label for="endDay">End Day of Week:</label>
-                           <select class="selectpicker" id="endDay">
-                              <option value="" selected>
-                                 Select...
-                              </option>
-                              <option value="1">
-                                 Monday 11:59 PM
-                              </option>
-                              <option value="2">
-                                 Tuesday 11:59 PM
-                              </option>
-                              <option value="3">
-                                 Wednesday 11:59 PM
-                              </option>
-                              <option value="4">
-                                 Thursday 11:59 PM
-                              </option>
-                              <option value="5">
-                                 Friday 11:59 PM
-                              </option>
-                              <option value="6">
-                                 Saturday 11:59 PM
-                              </option>
-                              <option value="7">
-                                 Sunday 11:59 PM
+                              <option value="7" selected>
+                                 Sunday 
                               </option>
                            </select>
                         </div>
@@ -201,9 +167,10 @@
             <h4 class="modal-title step-2" data-step="2">Step 2</h4>
             <h4 class="modal-title step-3" data-step="3">Step 3</h4>
             <h4 class="modal-title step-4" data-step="4">Step 4</h4>
+            <h4 class="modal-title step-5" data-step="5">Step 5</h4>
           </div>
           <div class="modal-body step step-1">
-            <p>Sign into the Google account linked to your Android device. Go to <a href="https://takeout.google.com/settings/takeout">takeout.google.com/settings/takeout.</a></p>
+            <p>Sign into the Google account linked to your Android device. Go to <a href="https://takeout.google.com/settings/takeout" target="_blank">takeout.google.com/settings/takeout.</a></p>
           </div>
           <div class="modal-body step step-2">
             <p>Click "Select none."
@@ -223,11 +190,16 @@
             <img class="tutorial-img" src="static/images/takeout-screenshots/choose-format.png" />
             Create archive.</p>
           </div>
+          <div class="modal-body step step-5">
+            <p>Unzip/Unarchive and extract the resulting downloaded .zip file. Open the "Location History" folder and move the "LocationHistory.json" file to a known place. <b> You'll be using this file for the upload process</b>
+            <br>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary step step-1" data-step="1" onclick="sendEvent(2)">Continue</button>
             <button type="button" class="btn btn-primary step step-2" data-step="2" onclick="sendEvent(3)">Continue</button>
             <button type="button" class="btn btn-primary step step-3" data-step="3" onclick="sendEvent(4)">Continue</button>
+            <button type="button" class="btn btn-primary step step-4" data-step="4" onclick="sendEvent(5)">Continue</button>
           </div>
         </div>
       </div>
