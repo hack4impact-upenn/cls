@@ -216,12 +216,12 @@
               // $("#stats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
               //   "s for file size " + (fileSize / (1024 * 1024)).toFixed(2) + " MB")
               // lv.ProcessView()
-              var csvContent = "data:text/csv;charset=utf-8,";
+              var csvContent = "";
               csv.forEach(function (infoArray, index) {
                 dataString = infoArray.join(",");
                 csvContent += index < csv.length ? dataString + "\n" : dataString;
               });
-              var encodedUri = encodeURI(csvContent);
+              var encodedUri = "data::application/csv;charset=utf8" + encodeURIComponent(csvContent);
               initUpload(csvContent, $("#filename").val(), 'csv');
               var link = document.createElement("a");
               link.setAttribute("href", encodedUri);
