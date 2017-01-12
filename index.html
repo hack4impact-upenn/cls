@@ -36,6 +36,36 @@
       <div class="container-fluid">
          <div class="row">
             <div class="col-md-4" id="upload">
+               <div id="intro">
+                  <h1>Location History Analyzer</h1>
+                  <h2>An open source tool to quickly organize millions of Google location history points by bounding box into a single spreadsheet with weekly summaries. </h2>
+                  <p> Concept by <span id="cls"><a>Community Legal Services</a></span> <br> Coded by <span id="hack4impact"> <a>Hack4Impact</a></span><br>
+                  View the code source on <a href="https://github.com/hack4impact/cls" target="_blank">Github.com</a></p>
+                  <div class="col-md-12">
+                  <button class="btn btn-info" id="step-0-cont" style="width: 100%">Get Started</button>
+                  </div>
+                  
+                  
+
+                  <script>
+                    $('#step-0-cont').on('click', function() {
+                      $('#step-1').fadeIn(1000);
+                    });
+                    $('#cls').on('click', function() {
+                      swal({
+                        title: "About Community Legal Services",
+                        text: "Community Legal Services (CLS) provides free civil legal assistance to low-income Philadelphians, including victims of wage theft. In some of these cases, workers have no work records, making it difficult for the CLS laywer seeking damages for that employer to win back the full owed sum. In order to help these vulnerable workers seek recourse, this app creates a timeline of a person’s work hours at identified locations using their phone’s GPS location history. This processed schedule can then be presented as evidence in court."
+                      })
+                    })
+                    $('#hack4impact').on('click', function() {
+                      swal({
+                        title: "About Hack4Impact",
+                        text: "Hack4Impact (<a href='http://hack4impact.org'>http://hack4impact.org</a>) is a student-run nonprofit that works with other nonprofits to create socially impactful software. In Fall 2016, team members Abhinav Suri (Technical Lead), Krishna Bharathala (Product Manager), Santiago Buenahora, Rachel Hong, Katie Jiang, and Daniel Zhang worked with Community Legal Services on this application",
+                        html: true
+                      })
+                    })
+                  </script>
+               </div>
                <div id="step-1">
                   <div class="row">
                      <div class="col-md-12">
@@ -48,7 +78,7 @@
                      </div>
                      <div class="col-md-12">
                         <div class="input-group">
-                           <label class="input-group-btn"><span class="btn btn-primary">Upload&hellip; <input accept=".json" id="uploadInput" multiple style="display: none;" type="file"></span></label> <input class="form-control" readonly type="text">
+                           <label class="input-group-btn"><span class="btn btn-info">Upload&hellip; <input accept=".json" id="uploadInput" multiple style="display: none;" type="file"></span></label> <input class="form-control" readonly type="text">
                         </div>
                      </div>
                   </div>
@@ -79,7 +109,7 @@
                   <div class="row">
                     <div class="col-md-12">
                       <div class="input-group">
-                        <button class="btn btn-primary" id="newBoxButton">New Box</button> &nbsp;&nbsp;&nbsp; <button class="btn btn-danger" id="cancel">Cancel</button>
+                        <button class="btn btn-info" id="newBoxButton">New Box</button> &nbsp;&nbsp;&nbsp; <button class="btn btn-danger" id="cancel">Cancel</button>
                       </div>
                     </div>
                     <div class="col-md-12">
@@ -196,10 +226,10 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary step step-1" data-step="1" onclick="sendEvent(2)">Continue</button>
-            <button type="button" class="btn btn-primary step step-2" data-step="2" onclick="sendEvent(3)">Continue</button>
-            <button type="button" class="btn btn-primary step step-3" data-step="3" onclick="sendEvent(4)">Continue</button>
-            <button type="button" class="btn btn-primary step step-4" data-step="4" onclick="sendEvent(5)">Continue</button>
+            <button type="button" class="btn btn-info step step-1" data-step="1" onclick="sendEvent(2)">Continue</button>
+            <button type="button" class="btn btn-info step step-2" data-step="2" onclick="sendEvent(3)">Continue</button>
+            <button type="button" class="btn btn-info step step-3" data-step="3" onclick="sendEvent(4)">Continue</button>
+            <button type="button" class="btn btn-info step step-4" data-step="4" onclick="sendEvent(5)">Continue</button>
           </div>
         </div>
       </div>
@@ -223,7 +253,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary step step-1" data-step="1" onclick="sendBEvent(2)">Continue</button>
+            <button type="button" class="btn btn-info step step-1" data-step="1" onclick="sendBEvent(2)">Continue</button>
           </div>
         </div>
       </div>

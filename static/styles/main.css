@@ -83,6 +83,7 @@ body {
 }
 
 #step-1 {
+  display: none; 
 }
 
 #step-2 {
@@ -111,10 +112,19 @@ body {
   margin-bottom: 0px;
 }
 
+h1 {
+  font-family: 'HKGroteskBold', 'Arial';
+}
+
+h2 {
+  font-size: 28px;
+}
 h3 {
   font-family: 'HKGroteskBold', 'Arial';
   font-size: 28px;
 }
+
+
 
 p {
   font-size: 18px
