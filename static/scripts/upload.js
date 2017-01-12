@@ -1,7 +1,12 @@
 /* FILE PROCESSING */
-var lv = new PruneClusterForLeaflet(160);
-mymap.addLayer(lv);
-
+heatOptions = {
+  tileOpacity: 1,
+  heatOpacity: 1,
+  radius: 10,
+  blur: 5
+};
+heat = L.heatLayer( [], heatOptions ).addTo( mymap );
+mymap.addLayer(heat);
 // file input
 $(document).on('change', ':file', function () {
   var input = $(this),
@@ -13,12 +18,14 @@ $(document).on('change', ':file', function () {
 var SCALAR_E7 = 0.0000001;
 // Init oboe for file processing
 var os = oboe()
+var latlngs = [];
 os.node('locations.*', function (location) {
-  var marker = new PruneCluster.Marker(location.latitudeE7 * SCALAR_E7,
-    location.longitudeE7 * SCALAR_E7);
-  lv.RegisterMarker(marker);
+  latlngs.push([location.latitudeE7 * SCALAR_E7, location.longitudeE7 * SCALAR_E7]);
   return oboe.drop;
-}).done('done');
+}).done(function() {
+  heat._latlngs = latlngs;
+  heat.redraw();
+});
 
 // initialize file parsing
 $(':file').on('fileselect', function (event, numFiles, label) {
@@ -68,7 +75,6 @@ function parseFile(file, oboeInstance) {
       endTime = Date.now();
       $("#stats").text("Time taken: " + ((endTime - startTime) / 1000).toFixed(2) +
         "s for file size " + (fileSize / (1024 * 1024)).toFixed(2) + " MB")
-      lv.ProcessView()
       return;
     }
 
