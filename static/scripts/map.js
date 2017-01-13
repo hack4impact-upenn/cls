@@ -97,14 +97,14 @@ function createBox(name) {
 function toggleAllBoxMarkers(e) {
   var boxKeys = Object.keys(boxes);
   for (var i = 0; i < boxKeys.length; i++) {
-    toggleBoxMarker(boxes[boxKeys[i]], i);
+    toggleBoxMarker(boxes[boxKeys[i]]);
   }
 }
 
-function toggleBoxMarker(box, i) {
+function toggleBoxMarker(box) {
   var rect = box.rectangle;
   var zoom = box.zoomLevel;
-  var boxPane = rect.getPane().firstChild.firstChild.childNodes[i];
+  var boxPane = rect.getPane().firstChild;
 
   var w = boxPane.getBoundingClientRect().width;
   var h = boxPane.getBoundingClientRect().height;
