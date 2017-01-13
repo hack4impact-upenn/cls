@@ -1,6 +1,6 @@
 // INIT CSV
 var csv = [
-  ["name of area", "start date", "start time", "end date", "end time", "duration", "total time for week (hrs)"]
+  ["name of area", "start date", "start time", "end date", "end time", "duration (hrs)", "total time for week (hrs)"]
 ];
 weekMarkMS = 0;
 
@@ -49,9 +49,9 @@ $('#submitProcess').on('click', function (e) {
             }
           } else {
             if (inside[i] === true) {
-              var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY ddd')
+              var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY')
               var endTime = moment.unix(endTimes[i] / 1000).format('HH:mm')
-              var startDate = moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY ddd')
+              var startDate = moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY')
               var startTime = moment.unix(location.timestampMs / 1000).format('HH:mm')
               var duration = Math.abs(endTimes[i] - location.timestampMs) / 1000 / 3600
               var entry = [ obj.boxes[i].name, startDate, startTime, endDate, endTime, duration, ""];
@@ -73,9 +73,9 @@ $('#submitProcess').on('click', function (e) {
           // still inside at the end of the week
           if (inside[i] === true) {
             // cut at the weekMarkMS time and add an entry
-            var startDate = moment.unix(weekMarkMS / 1000).format('MM-DD-YYYY ddd')
+            var startDate = moment.unix(weekMarkMS / 1000).format('MM-DD-YYYY')
             var startTime = moment.unix(weekMarkMS / 1000).format('HH:mm')
-            var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY ddd')
+            var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY')
             var endTime = moment.unix(endTimes[i] / 1000).format('HH:mm')
             var duration = Math.abs(weekMarkMS - endTimes[i]) / 1000 / 3600
             durations[i] += duration;
