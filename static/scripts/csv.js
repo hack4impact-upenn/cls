@@ -54,12 +54,14 @@ $('#submitProcess').on('click', function (e) {
               var startDate = moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY')
               var startTime = moment.unix(location.timestampMs / 1000).format('HH:mm')
               var duration = Math.abs(endTimes[i] - location.timestampMs) / 1000 / 3600
-              var entry = [ obj.boxes[i].name, startDate, startTime, endDate, endTime, duration, ""];
-              csv.push(entry);
-              // reset
-              inside[i] = false;
-              endTimes[i] = 0;
-              durations[i] += duration;
+              if (duration >= 0.1) {
+                var entry = [ obj.boxes[i].name, startDate, startTime, endDate, endTime, duration, ""];
+                csv.push(entry);
+                // reset
+                inside[i] = false;
+                endTimes[i] = 0;
+                durations[i] += duration;
+              }
             }
           }
         }
