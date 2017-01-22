@@ -731,13 +731,7 @@ var PruneClusterForLeaflet = (L.Layer ? L.Layer : L.Class).extend({
             icluster = clusterCreationList[i],
                 idata = icluster.data;
             var iposition = idata._leafletPosition;
-            var creationMarker;
-            if (icluster.population === 1) {
-                creationMarker = this.BuildLeafletMarker(icluster.lastMarker, iposition);
-            }
-            else {
-                creationMarker = this.BuildLeafletCluster(icluster, iposition);
-            }
+            var creationMarker = this.BuildLeafletCluster(icluster, iposition);
             creationMarker.addTo(map);
             creationMarker.setOpacity(0);
             opacityUpdateList.push(creationMarker);
