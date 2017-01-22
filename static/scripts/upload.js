@@ -1,5 +1,5 @@
 /* FILE PROCESSING */
-var lv = new PruneClusterForLeaflet(40);
+var lv = new PruneClusterForLeaflet(160);
 mymap.addLayer(lv);
 
 // file input

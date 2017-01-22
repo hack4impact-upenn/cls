@@ -34,7 +34,6 @@ $('#submitProcess').on('click', function (e) {
     var durations = new Array(obj.boxes.length).fill(0);
     var count = 0;
     var newOboe = oboe();
-
     newOboe.node('locations.*', function (location) {
       if (count == 0) {
         console.log('yes count is ' + count );
@@ -49,19 +48,17 @@ $('#submitProcess').on('click', function (e) {
             }
           } else {
             if (inside[i] === true) {
-              var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY')
-              var endTime = moment.unix(endTimes[i] / 1000).format('HH:mm')
               var startDate = moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY')
               var startTime = moment.unix(location.timestampMs / 1000).format('HH:mm')
+              var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY')
+              var endTime = moment.unix(endTimes[i] / 1000).format('HH:mm')
               var duration = Math.abs(endTimes[i] - location.timestampMs) / 1000 / 3600
-              if (duration >= 0.1) {
-                var entry = [ obj.boxes[i].name, startDate, startTime, endDate, endTime, duration, ""];
-                csv.push(entry);
-                // reset
-                inside[i] = false;
-                endTimes[i] = 0;
-                durations[i] += duration;
-              }
+              var entry = [ obj.boxes[i].name, startDate, startTime, endDate, endTime, duration, "", location.timestampMs, endTimes[i]];
+              csv.push(entry);
+              // reset
+              inside[i] = false;
+              endTimes[i] = 0;
+              durations[i] += duration;
             }
           }
         }
@@ -81,7 +78,7 @@ $('#submitProcess').on('click', function (e) {
             var endTime = moment.unix(endTimes[i] / 1000).format('HH:mm')
             var duration = Math.abs(weekMarkMS - endTimes[i]) / 1000 / 3600
             durations[i] += duration;
-            var entry = [ obj.boxes[i].name, startDate, startTime, endDate, endTime, duration, ""];
+            var entry = [ obj.boxes[i].name, startDate, startTime, endDate, endTime, duration, "", weekMarkMS, endTimes[i]];
             csv.push(entry);
             console.log(entry);
             console.log("WEEK END ENTRY CUT");
@@ -178,11 +175,46 @@ function parseFileToCSV(file, oboeInstance) {
       oboeInstance.emit('done');
       console.log("Done reading file");
       endTime = Date.now();
+      trimmedCSV = [];
+      for (var i = 0; i < csv.length; i++) {
+        if (i <= 1) {
+          trimmedCSV.push(csv[i])
+        } else {
+          console.log(csv[i][0])
+          console.log(trimmedCSV[trimmedCSV.length-1][0]);
+          console.log('init condit: '+ csv[i][0] !== "");
+          console.log('second conidt: ' + trimmedCSV[trimmedCSV.length-1][0] === csv[i][0]);
+          // check if locations are the same
+          if (csv[i][0] !== "" || trimmedCSV[trimmedCSV.length-1][0] !== "") {
+            console.log('both full');
+            if( trimmedCSV[trimmedCSV.length-1][0] === csv[i][0]) {
+              console.log('equal string');
+              if (Math.abs(trimmedCSV[trimmedCSV.length-1][7] - csv[i][8]) <= 360000) {
+                console.log('small gap');
+                var old = trimmedCSV[trimmedCSV.length-1];
+                var newentry = csv[i];
+                trimmedCSV[trimmedCSV.length-1] = [newentry[0], newentry[1], newentry[2], old[3], old[4], old[5] + newentry[5], "", newentry[7], old[8]]; 
+              } else {
+                console.log('large gap');
+                trimmedCSV.push(csv[i])
+              }
+            } else {
+              console.log('no eq');
+              trimmedCSV.push(csv[i])
+            }
+          } else {
+            console.log('empt');
+            trimmedCSV.push(csv[i])
+          }
+        }
+      }
       var csvContent = "";
-      csv.forEach(function (infoArray, index) {
+      trimmedCSV.forEach(function (infoArray, index) {
+        infoArray = infoArray.slice(0,7);
         dataString = infoArray.join(",");
-        csvContent += index < csv.length ? dataString + "\n" : dataString;
+        csvContent += index < trimmedCSV.length ? dataString + "\n" : dataString;
       });
+
       var encodedUri = "data:text/csv;charset=utf8," + encodeURIComponent(csvContent);
       var link = document.createElement("a");
       link.setAttribute("href", encodedUri);
