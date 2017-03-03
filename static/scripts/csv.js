@@ -186,7 +186,26 @@ function parseFileToCSV(file, oboeInstance) {
       endTime = Date.now();
       trimmedCSV = [];
       for (var i = 0; i < csv.length; i++) {
-          trimmedCSV.push(csv[i])
+        if (i <= 1) {		
+          trimmedCSV.push(csv[i]);
+        } else {		
+          // check if locations are the same		
+          if (csv[i][0] !== "" || trimmedCSV[trimmedCSV.length-1][0] !== "") {		
+            if( trimmedCSV[trimmedCSV.length-1][0] === csv[i][0]) {		
+              if (Math.abs(trimmedCSV[trimmedCSV.length-1][7] - csv[i][8]) <= 360000) {		
+                var old = trimmedCSV[trimmedCSV.length-1];		
+                var newentry = csv[i];		
+                trimmedCSV[trimmedCSV.length-1] = [newentry[0], newentry[1], newentry[2], old[3], old[4], old[5] + newentry[5], "", newentry[7], old[8]]; 		
+              } else {		
+                trimmedCSV.push(csv[i])		
+              }		
+            } else {		
+              trimmedCSV.push(csv[i])		
+            }		
+          } else {		
+            trimmedCSV.push(csv[i])		
+          }		
+        }
       }
       var csvContent = "";
       trimmedCSV.forEach(function (infoArray, index) {
