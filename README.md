@@ -1,6 +1,6 @@
 # Community Legal Services [Fall-2016]
 
-This is a Hack4Impact Project for Community Legal Services. Try it out [here](https://www.clscsv.herokuapp.com).
+This is a Hack4Impact Project for Community Legal Services. Try it out [here](https://hack4impact.github.io/cls).
 
 ## Team Members
 * Krishna Bharathala (Project Manager)
@@ -17,16 +17,16 @@ This app processes Google Location data into a CSV Files based on bounding boxes
 ## Demos
 
 ### Tutorial for downloading your location data
-![](tutorial.gif)
+![](media/tutorial.gif)
 
 ### Uploading your location data
-![](upload.gif)
+![](media/upload.gif)
 
 ### Creating bounding boxes
-![](bounding_box.gif)
+![](media/bounding_box.gif)
 
 ### Submitting your data and creating CSV
-![](submit_csv.gif)
+![](media/submit_csv.gif)
 
 
 
