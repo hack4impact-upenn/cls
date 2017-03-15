@@ -1,9 +1,9 @@
 // INIT CSV
+var expansionCoef = 0.002195 // approx amount of degrees = 800 ft
 var csv = [
   ["name of area", "start date", "start time", "end date", "end time", "duration (hrs)", "total time for week (hrs)"]
 ];
 weekMarkMS = 0;
-
 // On click of submit button start csv generation process
 $('#submitProcess').on('click', function (e) {
   var errString = "";
@@ -28,7 +28,7 @@ $('#submitProcess').on('click', function (e) {
       showConfirmButton: false
     });
 
-    var obj = processData(boxes, $('#email').val(), $('#startDay').val());
+    var obj = processData(boxes, $('#startDay').val());
     var inside = new Array(obj.boxes.length).fill(false);
     var endTimes = new Array(obj.boxes.length).fill(0);
     var durations = new Array(obj.boxes.length).fill(0);
@@ -48,6 +48,7 @@ $('#submitProcess').on('click', function (e) {
             }
           } else {
             if (inside[i] === true) {
+              console.log('is inside');
               var startDate = moment.unix(location.timestampMs / 1000).format('MM-DD-YYYY')
               var startTime = moment.unix(location.timestampMs / 1000).format('HH:mm')
               var endDate = moment.unix(endTimes[i] / 1000).format('MM-DD-YYYY')
@@ -121,7 +122,7 @@ function isInBox(lat, lng, box){
     return false;
   }
 }
-function processData(boxes, email, start) {
+function processData(boxes, start) {
   var boxKeys = Object.keys(boxes);
   var resBoxArray = [];
   var arr = [1,2,3,4,5,6,7];
@@ -135,6 +136,15 @@ function processData(boxes, email, start) {
     var neLng = ne.lng;
     var swLat = sw.lat;
     var swLng = sw.lng;
+    if($('#expanded').is(":checked")) {
+      console.log('EXPANDED');
+      swLat -= expansionCoef;
+      swLng -= expansionCoef;
+      neLat += expansionCoef;
+      neLng += expansionCoef;
+    }
+
+    console.log('swlat: ' + swLat + 'swlng: ' + swLng + 'neLat: ' + neLat + 'neLng: ' + neLng);
     resBoxArray.push({
       name: parseObj.name,
       neLat: neLat,
@@ -145,7 +155,6 @@ function processData(boxes, email, start) {
   }
   return {
     boxes: resBoxArray,
-    email: email,
     dayStart: start,
   }
 }
@@ -177,35 +186,25 @@ function parseFileToCSV(file, oboeInstance) {
       endTime = Date.now();
       trimmedCSV = [];
       for (var i = 0; i < csv.length; i++) {
-        if (i <= 1) {
-          trimmedCSV.push(csv[i])
-        } else {
-          console.log(csv[i][0])
-          console.log(trimmedCSV[trimmedCSV.length-1][0]);
-          console.log('init condit: '+ csv[i][0] !== "");
-          console.log('second conidt: ' + trimmedCSV[trimmedCSV.length-1][0] === csv[i][0]);
-          // check if locations are the same
-          if (csv[i][0] !== "" || trimmedCSV[trimmedCSV.length-1][0] !== "") {
-            console.log('both full');
-            if( trimmedCSV[trimmedCSV.length-1][0] === csv[i][0]) {
-              console.log('equal string');
-              if (Math.abs(trimmedCSV[trimmedCSV.length-1][7] - csv[i][8]) <= 360000) {
-                console.log('small gap');
-                var old = trimmedCSV[trimmedCSV.length-1];
-                var newentry = csv[i];
-                trimmedCSV[trimmedCSV.length-1] = [newentry[0], newentry[1], newentry[2], old[3], old[4], old[5] + newentry[5], "", newentry[7], old[8]]; 
-              } else {
-                console.log('large gap');
-                trimmedCSV.push(csv[i])
-              }
-            } else {
-              console.log('no eq');
-              trimmedCSV.push(csv[i])
-            }
-          } else {
-            console.log('empt');
-            trimmedCSV.push(csv[i])
-          }
+        if (i <= 1) {		
+          trimmedCSV.push(csv[i]);
+        } else {		
+          // check if locations are the same		
+          if (csv[i][0] !== "" || trimmedCSV[trimmedCSV.length-1][0] !== "") {		
+            if( trimmedCSV[trimmedCSV.length-1][0] === csv[i][0]) {		
+              if (Math.abs(trimmedCSV[trimmedCSV.length-1][7] - csv[i][8]) <= 360000) {		
+                var old = trimmedCSV[trimmedCSV.length-1];		
+                var newentry = csv[i];		
+                trimmedCSV[trimmedCSV.length-1] = [newentry[0], newentry[1], newentry[2], old[3], old[4], old[5] + newentry[5], "", newentry[7], old[8]]; 		
+              } else {		
+                trimmedCSV.push(csv[i])		
+              }		
+            } else {		
+              trimmedCSV.push(csv[i])		
+            }		
+          } else {		
+            trimmedCSV.push(csv[i])		
+          }		
         }
       }
       var csvContent = "";
@@ -226,16 +225,18 @@ function parseFileToCSV(file, oboeInstance) {
         html: true,
         showCancelButton: true,
         closeOnConfirm: false,
-        cancelButtonText: "Clear page and Reload",
+        cancelButtonText: "Edit information",
         confirmButtonText: "Download CSV"
       },
       function(isConfirm){
         if (isConfirm) {
           link.click()
+        } else {
+          csv = [
+            ["name of area", "start date", "start time", "end date", "end time", "duration (hrs)", "total time for week (hrs)"]
+          ];
+          weekMarkMS = 0;
         }
-        if (!isConfirm) {
-          location.reload()
-        } 
       });
       
       return;

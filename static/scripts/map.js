@@ -23,7 +23,7 @@ var currentBox;
 var clicking = false;
 var dragStart, dragEnd;
 var uploadURL;
-
+var expansionCoef = 0.002195 // approx amount of degrees = 800 ft
 /* MOUSE DRAG -> MAP BOX FUNCTIONALITY */
 
 function mousedownMap(e) {

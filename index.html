@@ -7,30 +7,32 @@
       <meta charset="utf-8">
       <meta content="width=device-width, initial-scale=1.0" name="viewport">
       <!-- import basic jquery + bootstrap --> 
-      <script src="static/scripts/jquery.min.js"></script>
+      <script src="static/scripts/lib/jquery.min.js"></script>
       <link href="static/styles/bootstrap.min.css" rel="stylesheet">
-      <script src="static/scripts/bootstrap.min.js"></script>
+      <script src="static/scripts/lib/bootstrap.min.js"></script>
       <link href="static/styles/bootstrap-select.min.css" rel="stylesheet">
-      <script src="static/scripts/bootstrap-select.min.js"></script>
+      <script src="static/scripts/lib/bootstrap-select.min.js"></script>
 
       <!-- import leaflet scripts -->  
       <link href="static/styles/leaflet.css" rel="stylesheet">
-      <script src="static/scripts/leaflet.js"></script>
+      <script src="static/scripts/lib/leaflet.js"></script>
 
       <!-- import map helper scripts -->
-      <script src="static/scripts/prunecluster.js"></script>
-      <script src="static/scripts/simpleshape.js"></script>
-      <script src="static/scripts/rectangle.js"></script>
-      <script src="static/scripts/bootbox.min.js"></script>
+      <script src="static/scripts/lib/prunecluster.js"></script>
+      <script src="static/scripts/lib/simpleshape.js"></script>
+      <script src="static/scripts/lib/rectangle.js"></script>
+      <script src="static/scripts/lib/bootbox.min.js"></script>
       
       <!-- import json parser -->
-      <script src="static/scripts/oboe.min.js"></script>
+      <script src="static/scripts/lib/oboe.min.js"></script>
       
       <!-- import time (moment) and sweet alert (swal) -->
-      <script src="static/scripts/moment.min.js"></script>
-      <script src="static/scripts/swal.js"></script>
+      <script src="static/scripts/lib/moment.min.js"></script>
+      <script src="static/scripts/lib/swal.js"></script>
       <link href="static/styles/swal.css" rel="stylesheet">
 
+      <!-- modal --> 
+      <script src="static/scripts/lib/multi-step-modal.js"></script>
       <link rel="stylesheet" type="text/css" href="static/styles/main.css">
 
       <div class="container-fluid">
@@ -99,7 +101,7 @@
                      </div>
                   </div>
                </div>
-               <div id="step-2"> 
+               <div id="step-2" style="display:block"> 
                   <div class="row">
                      <div class="col-md-12">
                         <h3>Step 2: Select Bounding Boxes</h3>
@@ -128,7 +130,7 @@
                   </div>
                 </div>
                   <br>
-               <div id="step-3">
+               <div id="step-3" style="display:block">
                   <div class="row">
                      <div class="col-md-12">
                         <h3>Step 3: Submit</h3>
@@ -139,7 +141,7 @@
                   <div class="row">
                      <div class="col-md-12">
                         <div class="form-group">
-                           <label for="email">Name your file:</label> <input class="form-control" id="filename" type="text" value="Work Location History">
+                           <label for="filename">Name your file:</label> <input class="form-control" id="filename" type="text" value="Work Location History">
                         </div>
                      </div>
                   </div>
@@ -172,6 +174,12 @@
                            </select>
                         </div>
                      </div>
+                  </div>
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input class="form-check-input" id="expanded" type="checkbox" value="">
+                      Include 800ft extra on all sides of bounding box (recommended for usage in city areas)
+                    </label>
                   </div>
                   <div class="row">
                      <div class="col-md-12">
@@ -264,7 +272,6 @@
       </div>
     </form>
       <!-- map, upload, and csv custom scripts -->
-    <script src="static/scripts/multi-step-modal.js"></script>
     <script src="static/scripts/map.js"></script>
     <script src="static/scripts/upload.js"></script>
     <script src="static/scripts/csv.js"></script>
