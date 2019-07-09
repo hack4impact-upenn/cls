@@ -16,6 +16,7 @@ var os = oboe()
 os.node('locations.*', function(location) {
     var marker = new PruneCluster.Marker(location.latitudeE7 * SCALAR_E7,
     location.longitudeE7 * SCALAR_E7);
+    marker.data.timestamp = location.timestampMs;
     lv.RegisterMarker(marker);
     return oboe.drop;
 }).done('done');
