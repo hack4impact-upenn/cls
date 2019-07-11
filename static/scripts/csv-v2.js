@@ -15,10 +15,10 @@ $('#submitProcess').on('click', function () {
 
   // define function to check if in box
   function isInBox(lat, lng, box) {
-    var neLat = box.neLat;
-    var swLat = box.swLat;
-    var neLng = box.neLng;
-    var swLng = box.swLng;
+    var neLat = Number(box.neLat);
+    var swLat = Number(box.swLat);
+    var neLng = Number(box.neLng);
+    var swLng = Number(box.swLng);
     if($('#expanded').is(":checked")) {
       swLat -= expansionCoef;
       swLng -= expansionCoef;
@@ -28,19 +28,28 @@ $('#submitProcess').on('click', function () {
     return (lat <= neLat && lat >= swLat && lng <= neLng && lng >= swLng);
   }
   // create array with all segments
-  var seg = []
-  var lastBox = 'none'
+  var prevBox = null
   var res = []
   var markers  = [...lv.GetMarkers()]
-  markers.sort((a, b) => a.data.timestamp - b.data.timestamp).forEach((i, idx) => {
-    var a = boxbounds.filter(j => isInBox(i.position.lat, i.position.lng, j));
-    var loc = a[0] ? a[0].name : "none";
-    if (lastBox != loc || idx == markers.length - 1) {
-      var totTime = { start: seg[0], end: seg[seg.length - 1], box: loc };
-      res.push(totTime);
-      lastBox = loc;
-      seg = [i.data.timestamp];
-    } else if (lastBox == loc) { seg.push(i.data.timestamp); lastBox = loc; }
+  var sortedMarkers = markers.sort((a, b) => a.data.timestamp - b.data.timestamp)
+  var seg = { start: sortedMarkers[0].data.timestamp, end: sortedMarkers[0].data.timestamp, box: prevBox }
+  sortedMarkers.forEach((i, idx) => {
+    var a = boxbounds.filter(j => isInBox(Number(i.position.lat), Number(i.position.lng), j));
+    var currBox = a[0] ? a[0].name : null;
+    if (idx == markers.length -1) {
+      seg.end = i.data.timestamp;
+      res.push(seg);
+      return;
+    }
+    if (currBox == prevBox) {
+      seg.end = i.data.timestamp;
+    }
+    if (currBox != prevBox) {
+      // assume you are in prevBox until you aren't
+      res.push(seg);
+      prevBox = currBox;
+      seg = { start: i.data.timestamp, end: i.data.timestamp, box: prevBox }
+    }
   })
   res = res.filter(i => i.start)
   console.log(res);
@@ -52,7 +61,7 @@ $('#submitProcess').on('click', function () {
   var currWeek = 0
   for (var j = 0; j < res.length; j++) {
     var i = res[j];
-    if (i.box != 'none') {
+    if (i.box) {
       if (i.start <= weekStart + weekSpan) {
 
         if (i.end < weekEnd) {
